@@ -1,43 +1,27 @@
 package main
 
 import (
-	"fmt"
-	"log"
+	"flag"
 	"os"
-	"strings"
 
-	"github.com/go-ini/ini"
+	"golang.org/x/net/context"
+
+	"github.com/google/subcommands"
+
+	"github.com/kbence/logan/command"
+	"github.com/kbence/logan/config"
+	_ "github.com/kbence/logan/source"
 )
 
-var configuration struct {
-	Scribe struct {
-		Dirs []string
-	}
-}
-
-func loadConfig() {
-	cfg, err := ini.LooseLoad(
-		"/etc/logan.conf",
-		fmt.Sprintf("%s/.logan.conf", os.Getenv("HOME")))
-
-	if err != nil {
-		log.Panicf("ERROR: %s\n", err)
-	}
-
-	configuration.Scribe.Dirs = []string{}
-	scribeDirs := cfg.Section("scribe").Key("dirs").MustString("/mnt/scribe:/var/log/scribe")
-
-	for _, dir := range strings.Split(scribeDirs, ":") {
-		configuration.Scribe.Dirs = append(configuration.Scribe.Dirs, dir)
-	}
-}
-
 func main() {
-	loadConfig()
+	config := config.Load()
 
-	logs := NewScribeLogSource(configuration.Scribe.Dirs)
+	subcommands.Register(subcommands.HelpCommand(), "")
+	subcommands.Register(subcommands.FlagsCommand(), "")
+	subcommands.Register(subcommands.CommandsCommand(), "")
+	subcommands.Register(command.ListCommand(config), "")
 
-	for _, cat := range logs.GetCategories() {
-		fmt.Printf("Log category: %s\n", cat)
-	}
+	flag.Parse()
+	ctx := context.Background()
+	os.Exit(int(subcommands.Execute(ctx)))
 }

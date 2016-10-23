@@ -1,10 +1,18 @@
-package main
+package source
 
 import (
 	"io/ioutil"
 	"log"
 	"sort"
+
+	"github.com/kbence/logan/config"
 )
+
+func init() {
+	logSourceFactories["scribe"] = func(cfg *config.Configuration) LogSource {
+		return NewScribeLogSource(cfg.Scribe.Dirs)
+	}
+}
 
 // ScribeLogSource implements source for Scribe logs
 type ScribeLogSource struct {
