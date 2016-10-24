@@ -26,7 +26,20 @@ func NewScribeLogSource(directories []string) *ScribeLogSource {
 
 // GetCategories returns directory names from scribe dirs
 func (s *ScribeLogSource) GetCategories() []string {
-	categoryMap := make(map[string]bool)
+	categoryMap := s.getCategoryDirectoryMap()
+	categories := []string{}
+
+	for cat := range categoryMap {
+		categories = append(categories, cat)
+	}
+
+	sort.Strings(categories)
+
+	return categories
+}
+
+func (s *ScribeLogSource) getCategoryDirectoryMap() map[string]string {
+	categoryMap := make(map[string]string)
 
 	for _, dir := range s.directories {
 		files, err := ioutil.ReadDir(dir)
@@ -37,18 +50,21 @@ func (s *ScribeLogSource) GetCategories() []string {
 
 		for _, entry := range files {
 			if entry.IsDir() {
-				categoryMap[entry.Name()] = true
+				categoryMap[entry.Name()] = dir
 			}
 		}
 	}
 
-	categories := []string{}
+	return categoryMap
+}
 
-	for cat := range categoryMap {
-		categories = append(categories, cat)
+// GetChain returns a log chain for the given Scribe category
+func (s *ScribeLogSource) GetChain(category string) LogChain {
+	directory, found := s.getCategoryDirectoryMap()[category]
+
+	if !found {
+		return nil
 	}
 
-	sort.Strings(categories)
-
-	return categories
+	return NewScribeLogChain(directory, category)
 }

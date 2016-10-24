@@ -16,3 +16,16 @@ func GetLogSources(cfg *config.Configuration) map[string]LogSource {
 
 	return sources
 }
+
+// GetLogSource returns the source with the given name
+func GetLogSource(cfg *config.Configuration, source string) LogSource {
+	factory, found := logSourceFactories[source]
+
+	if !found {
+		return nil
+	}
+
+	sourceObject := factory(cfg)
+
+	return sourceObject
+}
