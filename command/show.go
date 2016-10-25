@@ -3,9 +3,7 @@ package command
 import (
 	"flag"
 	"fmt"
-	"io"
 	"log"
-	"os"
 	"strings"
 
 	"github.com/google/subcommands"
@@ -79,8 +77,6 @@ func (c *showCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) 
 	go parser.ParseColumns(dateChannel, columnChannel)
 	go parser.ParseDates(lineChannel, dateChannel)
 	parser.ParseLines(chain.Last(), lineChannel)
-
-	io.Copy(os.Stdout, chain.Last())
 
 	return subcommands.ExitSuccess
 }
