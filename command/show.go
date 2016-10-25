@@ -2,6 +2,7 @@ package command
 
 import (
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/google/subcommands"
 	"github.com/kbence/logan/config"
+	"github.com/kbence/logan/parser"
 	"github.com/kbence/logan/source"
 	"golang.org/x/net/context"
 )
@@ -60,6 +62,23 @@ func (c *showCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) 
 	if chain == nil {
 		log.Fatalf("Category '%s' not found!", category)
 	}
+
+	columnChannel := make(chan *parser.ColumnsWithDate)
+	dateChannel := make(chan *parser.LineWithDate)
+	lineChannel := make(chan string)
+	defer close(lineChannel)
+	defer close(dateChannel)
+	defer close(columnChannel)
+
+	go func() {
+		for {
+			line := <-columnChannel
+			fmt.Printf("%s\n", line.Line)
+		}
+	}()
+	go parser.ParseColumns(dateChannel, columnChannel)
+	go parser.ParseDates(lineChannel, dateChannel)
+	parser.ParseLines(chain.Last(), lineChannel)
 
 	io.Copy(os.Stdout, chain.Last())
 
