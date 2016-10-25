@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/google/subcommands"
 	"github.com/kbence/logan/config"
@@ -76,7 +77,7 @@ func (c *showCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) 
 	}()
 	go parser.ParseColumns(dateChannel, columnChannel)
 	go parser.ParseDates(lineChannel, dateChannel)
-	parser.ParseLines(chain.Last(), lineChannel)
+	parser.ParseLines(chain.Between(time.Now().Add(-time.Hour), time.Now()), lineChannel)
 
 	return subcommands.ExitSuccess
 }
