@@ -18,7 +18,7 @@ type dateParser struct {
 
 var dateParsers = []dateParser{
 	dateParser{
-		reg:    regexp.MustCompile("^(\\d{4}-\\d{2}-\\d{2} -\\d{2}:-\\d{2}:-\\d{2}.-\\d{3})"),
+		reg:    regexp.MustCompile("^(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}.\\d{3})"),
 		layout: "2006-01-02 03:04:05.000"}}
 
 func ParseDates(input chan string, output chan *LineWithDate) {
