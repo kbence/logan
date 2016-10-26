@@ -9,13 +9,15 @@ import (
 
 	"github.com/google/subcommands"
 	"github.com/kbence/logan/config"
+	"github.com/kbence/logan/filter"
 	"github.com/kbence/logan/parser"
 	"github.com/kbence/logan/source"
 	"golang.org/x/net/context"
 )
 
 type showCmd struct {
-	config *config.Configuration
+	config       *config.Configuration
+	timeInterval string
 }
 
 // ShowCommand creates a new showCmd instance
@@ -33,10 +35,35 @@ func (c *showCmd) Synopsis() string {
 
 func (c *showCmd) Usage() string {
 	return "list <category>:\n" +
-		"    print log lines from the given category"
+		"    print log lines from the given category\n"
 }
 
 func (c *showCmd) SetFlags(f *flag.FlagSet) {
+	f.StringVar(&c.timeInterval, "t", "-1h", "Example: -1h5m+5m")
+}
+
+func parseTimeInterval(timeIntVal string) (time.Time, time.Time) {
+	var start, end time.Time
+	parts := strings.Split(timeIntVal, "+")
+
+	startDur, err := time.ParseDuration(parts[0])
+	if err != nil {
+		log.Panicf("ERROR parsing time interval \"%s\": %s", parts[0], err)
+	}
+	start = time.Now().Add(startDur)
+
+	if len(parts) > 1 {
+		endDur, err := time.ParseDuration(parts[1])
+		if err != nil {
+			log.Panicf("ERROR parsing time interval \"%s\": %s", parts[1], err)
+		}
+
+		end = start.Add(endDur)
+	} else {
+		end = time.Now()
+	}
+
+	return start, end
 }
 
 func (c *showCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
@@ -62,6 +89,9 @@ func (c *showCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) 
 		log.Fatalf("Category '%s' not found!", category)
 	}
 
+	startTime, endTime := parseTimeInterval(c.timeInterval)
+
+	timeFilter := filter.NewTimeFilter(startTime, endTime)
 	columnChannel := make(chan *parser.ColumnsWithDate)
 	dateChannel := make(chan *parser.LineWithDate)
 	lineChannel := make(chan string)
@@ -72,12 +102,14 @@ func (c *showCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) 
 	go func() {
 		for {
 			line := <-columnChannel
-			fmt.Printf("%s\n", line.Line)
+			if timeFilter.Match(line) {
+				fmt.Printf("%s\n", line.Line)
+			}
 		}
 	}()
 	go parser.ParseColumns(dateChannel, columnChannel)
 	go parser.ParseDates(lineChannel, dateChannel)
-	parser.ParseLines(chain.Between(time.Now().Add(-time.Hour), time.Now()), lineChannel)
+	parser.ParseLines(chain.Between(startTime, endTime), lineChannel)
 
 	return subcommands.ExitSuccess
 }
