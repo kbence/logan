@@ -1,7 +1,7 @@
 package parser
 
 import (
-	"fmt"
+	"log"
 	"regexp"
 	"time"
 )
@@ -22,6 +22,12 @@ var dateParsers = []dateParser{
 		layout: "2006-01-02 03:04:05.000"}}
 
 func ParseDates(input chan string, output chan *LineWithDate) {
+	location, err := time.LoadLocation("Local")
+
+	if err != nil {
+		log.Panicf("ERROR loading local timezone: %s", err)
+	}
+
 	for {
 		line, more := <-input
 		parsed := false
@@ -34,8 +40,7 @@ func ParseDates(input chan string, output chan *LineWithDate) {
 			date := parser.reg.FindString(line)
 
 			if date != "" {
-				fmt.Println(date)
-				parsedDate, err := time.Parse(parser.layout, date)
+				parsedDate, err := time.ParseInLocation(parser.layout, date, location)
 
 				if err != nil {
 					continue
