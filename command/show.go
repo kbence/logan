@@ -10,7 +10,7 @@ import (
 	"github.com/google/subcommands"
 	"github.com/kbence/logan/config"
 	"github.com/kbence/logan/filter"
-	"github.com/kbence/logan/parser"
+	"github.com/kbence/logan/pipeline"
 	"github.com/kbence/logan/source"
 	"golang.org/x/net/context"
 )
@@ -92,16 +92,13 @@ func (c *showCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) 
 	startTime, endTime := parseTimeInterval(c.timeInterval)
 
 	timeFilter := filter.NewTimeFilter(startTime, endTime)
-	columnChannel := make(parser.LogLineChannel)
-	dateChannel := make(parser.LogLineChannel)
-	lineChannel := make(parser.LogLineChannel)
-	defer close(lineChannel)
-	defer close(dateChannel)
-	defer close(columnChannel)
+	logPipeline := pipeline.NewLogPipeline(chain.Between(startTime, endTime))
+	logOutputChannel := logPipeline.GetOutput()
+	defer logPipeline.Close()
 
 	go func() {
 		for {
-			line, more := <-columnChannel
+			line, more := <-logOutputChannel
 
 			if !more {
 				return
@@ -112,9 +109,7 @@ func (c *showCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) 
 			}
 		}
 	}()
-	go parser.ParseColumns(dateChannel, columnChannel)
-	go parser.ParseDates(lineChannel, dateChannel)
-	parser.ParseLines(chain.Between(startTime, endTime), lineChannel)
+	logPipeline.Start()
 
 	return subcommands.ExitSuccess
 }

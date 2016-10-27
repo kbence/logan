@@ -6,7 +6,7 @@ func isWhitespace(ch byte) bool {
 	return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r'
 }
 
-func ParseColumns(input LogLineChannel, output LogLineChannel) {
+func ParseColumns(output LogLineChannel, input LogLineChannel) {
 	for {
 		line, more := <-input
 

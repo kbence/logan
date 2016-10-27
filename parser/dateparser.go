@@ -23,7 +23,7 @@ var dateParsers = []dateParser{
 			return strings.Replace(input, ",", ".", -1)
 		}}}
 
-func ParseDates(input LogLineChannel, output LogLineChannel) {
+func ParseDates(output LogLineChannel, input LogLineChannel) {
 	location, err := time.LoadLocation("Local")
 
 	if err != nil {
