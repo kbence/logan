@@ -101,7 +101,12 @@ func (c *showCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) 
 
 	go func() {
 		for {
-			line := <-columnChannel
+			line, more := <-columnChannel
+
+			if !more {
+				return
+			}
+
 			if timeFilter.Match(line) {
 				fmt.Printf("%s\n", line.Line)
 			}
