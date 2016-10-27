@@ -1,29 +1,18 @@
 package parser
 
-import (
-	"bytes"
-	"time"
-)
-
-type ColumnsWithDate struct {
-	Date    time.Time
-	Columns []string
-	Line    string
-}
+import "bytes"
 
 func isWhitespace(ch byte) bool {
 	return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r'
 }
 
-func ParseColumns(input chan *LineWithDate, output chan *ColumnsWithDate) {
+func ParseColumns(input LogLineChannel, output LogLineChannel) {
 	for {
 		line, more := <-input
 
 		if !more {
 			break
 		}
-
-		result := ColumnsWithDate{Date: line.Date, Columns: []string{}, Line: line.Line}
 
 		lineLen := len(line.Line)
 		ws := true
@@ -43,7 +32,7 @@ func ParseColumns(input chan *LineWithDate, output chan *ColumnsWithDate) {
 				}
 			} else {
 				if isws && !quoted {
-					result.Columns = append(result.Columns, columnBuffer.String())
+					line.Columns = append(line.Columns, columnBuffer.String())
 					columnBuffer = bytes.Buffer{}
 					ws = true
 				} else {
@@ -59,9 +48,9 @@ func ParseColumns(input chan *LineWithDate, output chan *ColumnsWithDate) {
 		}
 
 		if columnBuffer.Len() > 0 {
-			result.Columns = append(result.Columns, columnBuffer.String())
+			line.Columns = append(line.Columns, columnBuffer.String())
 		}
 
-		output <- &result
+		output <- line
 	}
 }

@@ -6,8 +6,8 @@ import (
 	"time"
 )
 
-func makeChan(line string) chan *LineWithDate {
-	ch := make(chan *LineWithDate)
+func makeChan(line string) LogLineChannel {
+	ch := make(LogLineChannel)
 	location, err := time.LoadLocation("Europe/Budapest")
 	testDate := time.Date(2001, 2, 3, 4, 5, 6, 7, location)
 
@@ -16,7 +16,7 @@ func makeChan(line string) chan *LineWithDate {
 	}
 
 	go func() {
-		ch <- &LineWithDate{Date: testDate, Line: line}
+		ch <- &LogLine{Date: testDate, Line: line}
 		close(ch)
 	}()
 
@@ -25,7 +25,7 @@ func makeChan(line string) chan *LineWithDate {
 
 func TestSimpleColumns(t *testing.T) {
 	input := makeChan("first second third")
-	output := make(chan *ColumnsWithDate)
+	output := make(LogLineChannel)
 	defer close(output)
 
 	go ParseColumns(input, output)
@@ -45,7 +45,7 @@ func TestSimpleColumns(t *testing.T) {
 
 func TestQuotedColumns(t *testing.T) {
 	input := makeChan("first \"second column\" \"third\"")
-	output := make(chan *ColumnsWithDate)
+	output := make(LogLineChannel)
 	defer close(output)
 
 	go ParseColumns(input, output)

@@ -6,7 +6,7 @@ import (
 	"log"
 )
 
-func ParseLines(reader io.Reader, output chan string) {
+func ParseLines(reader io.Reader, output LogLineChannel) {
 	bufReader := bufio.NewReader(reader)
 
 	for {
@@ -17,7 +17,7 @@ func ParseLines(reader io.Reader, output chan string) {
 				line = line[0 : len(line)-1]
 			}
 
-			output <- line
+			output <- &LogLine{Line: line}
 		}
 
 		if err == io.EOF {
