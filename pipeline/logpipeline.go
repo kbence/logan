@@ -14,18 +14,23 @@ type LogPipeline struct {
 }
 
 func NewLogPipeline(reader io.Reader) *LogPipeline {
-	return &LogPipeline{reader: reader, lineChannel: make(parser.LogLineChannel),
-		dateChannel: make(parser.LogLineChannel), columnChannel: make(parser.LogLineChannel)}
+	return &LogPipeline{reader: reader}
 }
 
 func (p *LogPipeline) GetOutput() parser.LogLineChannel {
 	return p.columnChannel
 }
 
-func (p *LogPipeline) Start() {
+func (p *LogPipeline) Start() parser.LogLineChannel {
+	p.lineChannel = make(parser.LogLineChannel)
+	p.dateChannel = make(parser.LogLineChannel)
+	p.columnChannel = make(parser.LogLineChannel)
+
 	go parser.ParseColumns(p.columnChannel, p.dateChannel)
 	go parser.ParseDates(p.dateChannel, p.lineChannel)
-	parser.ParseLines(p.lineChannel, p.reader)
+	go parser.ParseLines(p.lineChannel, p.reader)
+
+	return p.columnChannel
 }
 
 func (p *LogPipeline) Close() {

@@ -2,7 +2,7 @@ package command
 
 import (
 	"flag"
-	"fmt"
+	"io"
 	"log"
 	"strings"
 	"time"
@@ -92,24 +92,19 @@ func (c *showCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) 
 	startTime, endTime := parseTimeInterval(c.timeInterval)
 
 	timeFilter := filter.NewTimeFilter(startTime, endTime)
-	logPipeline := pipeline.NewLogPipeline(chain.Between(startTime, endTime))
-	logOutputChannel := logPipeline.GetOutput()
+
+	reader, writer := io.Pipe()
+	defer reader.Close()
+	defer writer.Close()
+
+	logPipeline := pipeline.NewLogPipeline(reader)
 	defer logPipeline.Close()
 
-	go func() {
-		for {
-			line, more := <-logOutputChannel
+	filterPipeline := pipeline.NewFilterPipeline(logPipeline.Start(), []filter.Filter{timeFilter})
+	outputPipeline := pipeline.NewOutputPipeline(filterPipeline.Start())
+	outputPipeline.Start()
 
-			if !more {
-				return
-			}
-
-			if timeFilter.Match(line) {
-				fmt.Printf("%s\n", line.Line)
-			}
-		}
-	}()
-	logPipeline.Start()
+	io.Copy(writer, chain.Between(startTime, endTime))
 
 	return subcommands.ExitSuccess
 }
