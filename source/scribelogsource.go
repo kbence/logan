@@ -3,6 +3,7 @@ package source
 import (
 	"io/ioutil"
 	"log"
+	"os"
 	"sort"
 
 	"github.com/kbence/logan/config"
@@ -42,6 +43,10 @@ func (s *ScribeLogSource) getCategoryDirectoryMap() map[string]string {
 	categoryMap := make(map[string]string)
 
 	for _, dir := range s.directories {
+		if d, err := os.Stat(dir); err != nil || !d.IsDir() {
+			continue
+		}
+
 		files, err := ioutil.ReadDir(dir)
 
 		if err != nil {
