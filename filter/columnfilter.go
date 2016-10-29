@@ -10,6 +10,7 @@ type Operator uint8
 
 const (
 	OpEquals Operator = iota
+	OpNotEquals
 )
 
 type ExpressionType uint8
@@ -73,6 +74,9 @@ func (e *Expression) EvaluateBool(line *parser.LogLine) bool {
 	switch e.Op {
 	case OpEquals:
 		return e.Left.EvaluateString(line) == e.Right.EvaluateString(line)
+
+	case OpNotEquals:
+		return e.Left.EvaluateString(line) != e.Right.EvaluateString(line)
 	}
 
 	return false

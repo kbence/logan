@@ -31,7 +31,8 @@ stringLiteral <- '"' < stringContent > '"'
                  { p.Expr.SetString(buffer[begin:end]) }
 stringContent <- ( [^"] / '\\"' )+
 
-relationOperator <- equals
+relationOperator <- ( equals / notEquals )
 
 equals <- '==' { p.Expr.Op = OpEquals }
+notEquals <- ( '!=' / '<>' ) { p.Expr.Op = OpNotEquals }
 ws <- (' ' / '\t')
