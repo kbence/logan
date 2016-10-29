@@ -69,7 +69,7 @@ func parseTimeInterval(timeIntVal string) (time.Time, time.Time) {
 func (c *showCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	args := f.Args()
 
-	if len(args) != 1 {
+	if len(args) < 1 {
 		log.Fatal("You have to pass a log source to this command!")
 	}
 
@@ -91,7 +91,13 @@ func (c *showCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) 
 
 	startTime, endTime := parseTimeInterval(c.timeInterval)
 
-	timeFilter := filter.NewTimeFilter(startTime, endTime)
+	filters := []filter.Filter{}
+	filters = append(filters, filter.NewTimeFilter(startTime, endTime))
+
+	for _, filterString := range args[1:] {
+		columnFilter := filter.NewColumnFilter(filterString)
+		filters = append(filters, columnFilter)
+	}
 
 	reader, writer := io.Pipe()
 	defer reader.Close()
@@ -100,7 +106,7 @@ func (c *showCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) 
 	logPipeline := pipeline.NewLogPipeline(reader)
 	defer logPipeline.Close()
 
-	filterPipeline := pipeline.NewFilterPipeline(logPipeline.Start(), []filter.Filter{timeFilter})
+	filterPipeline := pipeline.NewFilterPipeline(logPipeline.Start(), filters)
 	outputPipeline := pipeline.NewOutputPipeline(filterPipeline.Start())
 	outputPipeline.Start()
 

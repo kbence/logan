@@ -1,1 +1,4 @@
 logan
+
+# Generated .peg files
+*.peg.go

@@ -1,0 +1,37 @@
+package filter
+
+type ColumnFilterParser Peg {
+    Expr *Expression
+}
+
+filterExpression <- { p.Expr = &Expression{} }
+                    columnFilterExpression
+                    !.
+
+columnFilterExpression <- relation
+relation <- ( { p.Expr = p.Expr.GoLeft() }
+              expression
+              ws
+              { p.Expr.SetType(TypeRelation) }
+              relationOperator
+              ws
+              { p.Expr = p.Expr.GoRight() }
+              expression
+            )
+
+expression <- ( columnSpecifier / literal )
+              { p.Expr = p.Expr.Parent }
+
+columnSpecifier <- '$' < [0-9]+ >
+                   { p.Expr.SetColumn(buffer[begin:end]) }
+
+literal <- stringLiteral
+
+stringLiteral <- '"' < stringContent > '"'
+                 { p.Expr.SetString(buffer[begin:end]) }
+stringContent <- ( [^"] / '\\"' )+
+
+relationOperator <- equals
+
+equals <- '==' { p.Expr.Op = OpEquals }
+ws <- (' ' / '\t')
