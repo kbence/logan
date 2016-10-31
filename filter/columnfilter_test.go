@@ -29,11 +29,11 @@ func testFilter(t *testing.T, filterString string, expectations ...*expectation)
 	for _, exp := range expectations {
 		if exp.Matches {
 			if !filter.Match(exp.Line) {
-				t.Errorf("%s should%s match line", filter, exp.Line)
+				t.Errorf("%s should match line %s", filter, exp.Line)
 			}
 		} else {
 			if filter.Match(exp.Line) {
-				t.Errorf("%s should%s match line", filter, exp.Line)
+				t.Errorf("%s should not match line %s", filter, exp.Line)
 			}
 		}
 	}
