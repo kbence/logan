@@ -21,6 +21,7 @@ func ParseLines(output LogLineChannel, reader io.Reader) {
 		}
 
 		if err == io.EOF {
+			close(output)
 			break
 		}
 

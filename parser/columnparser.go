@@ -11,6 +11,7 @@ func ParseColumns(output LogLineChannel, input LogLineChannel) {
 		line, more := <-input
 
 		if !more {
+			close(output)
 			break
 		}
 

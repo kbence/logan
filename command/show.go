@@ -104,7 +104,6 @@ func (c *showCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) 
 	defer writer.Close()
 
 	logPipeline := pipeline.NewLogPipeline(reader)
-	defer logPipeline.Close()
 
 	filterPipeline := pipeline.NewFilterPipeline(logPipeline.Start(), filters)
 	outputPipeline := pipeline.NewOutputPipeline(filterPipeline.Start())

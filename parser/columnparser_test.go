@@ -26,7 +26,6 @@ func makeChan(line string) LogLineChannel {
 func TestSimpleColumns(t *testing.T) {
 	input := makeChan("first second third")
 	output := make(LogLineChannel)
-	defer close(output)
 
 	go ParseColumns(input, output)
 
@@ -46,7 +45,6 @@ func TestSimpleColumns(t *testing.T) {
 func TestQuotedColumns(t *testing.T) {
 	input := makeChan("first \"second column\" \"third\"")
 	output := make(LogLineChannel)
-	defer close(output)
 
 	go ParseColumns(input, output)
 

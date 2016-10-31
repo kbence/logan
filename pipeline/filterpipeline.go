@@ -20,6 +20,7 @@ func filterFunc(output parser.LogLineChannel, input parser.LogLineChannel, f fil
 		line, more := <-input
 
 		if !more {
+			close(output)
 			break
 		}
 

@@ -32,9 +32,3 @@ func (p *LogPipeline) Start() parser.LogLineChannel {
 
 	return p.columnChannel
 }
-
-func (p *LogPipeline) Close() {
-	close(p.lineChannel)
-	close(p.dateChannel)
-	close(p.columnChannel)
-}
