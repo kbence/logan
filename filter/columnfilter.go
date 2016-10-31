@@ -3,6 +3,7 @@ package filter
 import (
 	"bytes"
 	"fmt"
+	"regexp"
 	"strconv"
 
 	"github.com/kbence/logan/parser"
@@ -13,6 +14,7 @@ type Operator uint8
 const (
 	OpEquals Operator = iota
 	OpNotEquals
+	OpMatchesRegexp
 	OpOr
 	OpAnd
 )
@@ -132,6 +134,10 @@ func (e *Expression) EvaluateBool(line *parser.LogLine) bool {
 
 		case OpNotEquals:
 			return e.Left.EvaluateString(line) != e.Right.EvaluateString(line)
+
+		case OpMatchesRegexp:
+			re := regexp.MustCompile(e.Right.EvaluateString(line))
+			return re.MatchString(e.Left.EvaluateString(line))
 		}
 		break
 

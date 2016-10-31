@@ -81,3 +81,13 @@ func TestOperatorPrecedence(t *testing.T) {
 		expectDoesntMatch("no match", "second", "no match"),
 		expectDoesntMatch("no match", "no match", "second"))
 }
+
+func TestRegularExpressionWorks(t *testing.T) {
+	testFilter(t, "$1 ~= \"^test\"",
+		expectMatch("teststring"),
+		expectDoesntMatch("another teststring"))
+
+	testFilter(t, "\"interesting idea of reverse matching\" ~= $1",
+		expectMatch("reverse matching$"),
+		expectDoesntMatch("weird idea"))
+}

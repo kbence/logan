@@ -50,10 +50,11 @@ stringLiteral <- '"' < stringContent > '"'
                  { p.Expr.SetString(buffer[begin:end]) }
 stringContent <- ( [^"] / '\\"' )+
 
-relationOperator <- ( equals / notEquals )
+relationOperator <- ( equals / notEquals / matchesRegexp )
 
 equals <- '==' { p.Expr.Op = OpEquals }
 notEquals <- ( '!=' / '<>' ) { p.Expr.Op = OpNotEquals }
+matchesRegexp <- ( '~=' ) { p.Expr.Op = OpMatchesRegexp }
 andOperator <- ( 'and' / 'AND' / '&&' )
 orOperator <- ( 'or' / 'OR' / '||' )
 ws <- (' ' / '\t')
