@@ -21,6 +21,12 @@ var dateParsers = []dateParser{
 		layout: "2006-01-02 15:04:05.000",
 		preprocessor: func(input string) string {
 			return strings.Replace(input, ",", ".", -1)
+		}},
+	dateParser{
+		reg:    regexp.MustCompile("^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}[.,]\\d{3}[+-]\\d{4})"),
+		layout: "2006-01-02T15:04:05.000-0700",
+		preprocessor: func(input string) string {
+			return strings.Replace(input, ",", ".", -1)
 		}}}
 
 func ParseDates(output LogLineChannel, input LogLineChannel) {
