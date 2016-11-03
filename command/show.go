@@ -2,16 +2,14 @@ package command
 
 import (
 	"flag"
-	"io"
 	"log"
 	"strings"
 	"time"
 
 	"github.com/google/subcommands"
 	"github.com/kbence/logan/config"
-	"github.com/kbence/logan/filter"
 	"github.com/kbence/logan/pipeline"
-	"github.com/kbence/logan/source"
+	"github.com/kbence/logan/types"
 	"golang.org/x/net/context"
 )
 
@@ -42,7 +40,7 @@ func (c *showCmd) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.timeInterval, "t", "-1h", "Example: -1h5m+5m")
 }
 
-func parseTimeInterval(timeIntVal string) (time.Time, time.Time) {
+func parseTimeInterval(timeIntVal string) *types.TimeInterval {
 	var start, end time.Time
 	parts := strings.Split(timeIntVal, "+")
 
@@ -63,7 +61,7 @@ func parseTimeInterval(timeIntVal string) (time.Time, time.Time) {
 		end = time.Now()
 	}
 
-	return start, end
+	return types.NewTimeInterval(start, end)
 }
 
 func (c *showCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
@@ -73,43 +71,12 @@ func (c *showCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) 
 		log.Fatal("You have to pass a log source to this command!")
 	}
 
-	categoryParts := strings.Split(args[0], "/")
-
-	if len(categoryParts) != 2 {
-		log.Fatal("Log source must be in the following format: source/category!")
-	}
-
-	src := categoryParts[0]
-	category := categoryParts[1]
-
-	logSource := source.GetLogSource(c.config, src)
-	chain := logSource.GetChain(category)
-
-	if chain == nil {
-		log.Fatalf("Category '%s' not found!", category)
-	}
-
-	startTime, endTime := parseTimeInterval(c.timeInterval)
-
-	filters := []filter.Filter{}
-	filters = append(filters, filter.NewTimeFilter(startTime, endTime))
-
-	for _, filterString := range args[1:] {
-		columnFilter := filter.NewColumnFilter(filterString)
-		filters = append(filters, columnFilter)
-	}
-
-	reader, writer := io.Pipe()
-	defer reader.Close()
-	defer writer.Close()
-
-	logPipeline := pipeline.NewLogPipeline(reader)
-
-	filterPipeline := pipeline.NewFilterPipeline(logPipeline.Start(), filters)
-	outputPipeline := pipeline.NewOutputPipeline(filterPipeline.Start())
-	outputPipeline.Start()
-
-	io.Copy(writer, chain.Between(startTime, endTime))
+	p := pipeline.NewPipelineBuilder(pipeline.PipelineSettings{
+		Category: args[0],
+		Interval: parseTimeInterval(c.timeInterval),
+		Filters:  args[1:],
+		Config:   c.config})
+	p.Execute()
 
 	return subcommands.ExitSuccess
 }
