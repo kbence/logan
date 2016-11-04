@@ -3,13 +3,12 @@ package command
 import (
 	"flag"
 	"log"
-	"strings"
 	"time"
 
 	"github.com/google/subcommands"
 	"github.com/kbence/logan/config"
 	"github.com/kbence/logan/pipeline"
-	"github.com/kbence/logan/types"
+	"github.com/kbence/logan/utils"
 	"golang.org/x/net/context"
 )
 
@@ -40,30 +39,6 @@ func (c *showCmd) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.timeInterval, "t", "-1h", "Example: -1h5m+5m")
 }
 
-func parseTimeInterval(timeIntVal string) *types.TimeInterval {
-	var start, end time.Time
-	parts := strings.Split(timeIntVal, "+")
-
-	startDur, err := time.ParseDuration(parts[0])
-	if err != nil {
-		log.Panicf("ERROR parsing time interval \"%s\": %s", parts[0], err)
-	}
-	start = time.Now().Add(startDur)
-
-	if len(parts) > 1 {
-		endDur, err := time.ParseDuration(parts[1])
-		if err != nil {
-			log.Panicf("ERROR parsing time interval \"%s\": %s", parts[1], err)
-		}
-
-		end = start.Add(endDur)
-	} else {
-		end = time.Now()
-	}
-
-	return types.NewTimeInterval(start, end)
-}
-
 func (c *showCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	args := f.Args()
 
@@ -73,7 +48,7 @@ func (c *showCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) 
 
 	p := pipeline.NewPipelineBuilder(pipeline.PipelineSettings{
 		Category: args[0],
-		Interval: parseTimeInterval(c.timeInterval),
+		Interval: utils.ParseTimeInterval(c.timeInterval, time.Now()),
 		Filters:  args[1:],
 		Config:   c.config})
 	p.Execute()
