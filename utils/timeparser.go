@@ -91,7 +91,7 @@ func ParseTimeInterval(timeIntVal string, now time.Time) *types.TimeInterval {
 	}
 
 	if components[1] != "" {
-		startDur, err := time.ParseDuration(components[1])
+		startDur, err := ParseDuration(components[1])
 		if err != nil {
 			log.Panicf("ERROR parsing time interval \"%s\": %s", components[1], err)
 		}
@@ -101,7 +101,7 @@ func ParseTimeInterval(timeIntVal string, now time.Time) *types.TimeInterval {
 	}
 
 	if components[2] != "" {
-		endDur, err := time.ParseDuration(components[2])
+		endDur, err := ParseDuration(components[2])
 		if err != nil {
 			log.Panicf("ERROR parsing time interval \"%s\": %s", components[2], err)
 		}

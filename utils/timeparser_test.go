@@ -46,7 +46,7 @@ func TestParseTimeReferenceIfOnlyHourIsSpecified(t *testing.T) {
 }
 
 func testTimeIntervalMatch(t *testing.T, spec string, expected *types.TimeInterval) {
-	interval := ParseTimeInterval(spec, time.Date(2016, 11, 3, 13, 5, 12, 1234,
+	interval := ParseTimeInterval(spec, time.Date(2016, 10, 3, 13, 5, 12, 1234,
 		expected.StartTime.Location()))
 
 	if interval.StartTime != expected.StartTime {
@@ -65,26 +65,36 @@ func TestParseTimeInterval(t *testing.T) {
 
 	testTimeIntervalMatch(t, "-1h",
 		types.NewTimeInterval(
-			time.Date(2016, 11, 3, 12, 5, 12, 1234, location),
-			time.Date(2016, 11, 3, 13, 5, 12, 1234, location)))
+			time.Date(2016, 10, 3, 12, 5, 12, 1234, location),
+			time.Date(2016, 10, 3, 13, 5, 12, 1234, location)))
 
 	testTimeIntervalMatch(t, "-1h+5m8s",
 		types.NewTimeInterval(
-			time.Date(2016, 11, 3, 12, 5, 12, 1234, location),
-			time.Date(2016, 11, 3, 12, 10, 20, 1234, location)))
+			time.Date(2016, 10, 3, 12, 5, 12, 1234, location),
+			time.Date(2016, 10, 3, 12, 10, 20, 1234, location)))
 
 	testTimeIntervalMatch(t, "11:30+5m",
 		types.NewTimeInterval(
-			time.Date(2016, 11, 3, 11, 30, 0, 0, location),
-			time.Date(2016, 11, 3, 11, 35, 0, 0, location)))
+			time.Date(2016, 10, 3, 11, 30, 0, 0, location),
+			time.Date(2016, 10, 3, 11, 35, 0, 0, location)))
 
 	testTimeIntervalMatch(t, "15:30+5m",
 		types.NewTimeInterval(
-			time.Date(2016, 11, 2, 15, 30, 0, 0, location),
-			time.Date(2016, 11, 2, 15, 35, 0, 0, location)))
+			time.Date(2016, 10, 2, 15, 30, 0, 0, location),
+			time.Date(2016, 10, 2, 15, 35, 0, 0, location)))
 
 	testTimeIntervalMatch(t, "12:30-48h+15m",
 		types.NewTimeInterval(
-			time.Date(2016, 11, 1, 12, 30, 0, 0, location),
-			time.Date(2016, 11, 1, 12, 45, 0, 0, location)))
+			time.Date(2016, 10, 1, 12, 30, 0, 0, location),
+			time.Date(2016, 10, 1, 12, 45, 0, 0, location)))
+
+	testTimeIntervalMatch(t, "12:30-2d+1d",
+		types.NewTimeInterval(
+			time.Date(2016, 10, 1, 12, 30, 0, 0, location),
+			time.Date(2016, 10, 2, 12, 30, 0, 0, location)))
+
+	testTimeIntervalMatch(t, "12:30-1w+5m",
+		types.NewTimeInterval(
+			time.Date(2016, 9, 26, 12, 30, 0, 0, location),
+			time.Date(2016, 9, 26, 12, 35, 0, 0, location)))
 }
