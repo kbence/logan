@@ -3,11 +3,13 @@ package command
 import (
 	"flag"
 	"log"
+	"math"
 	"time"
 
 	"github.com/google/subcommands"
 	"github.com/kbence/logan/config"
 	"github.com/kbence/logan/pipeline"
+	"github.com/kbence/logan/types"
 	"github.com/kbence/logan/utils"
 	"golang.org/x/net/context"
 )
@@ -15,6 +17,7 @@ import (
 type showCmd struct {
 	config       *config.Configuration
 	timeInterval string
+	fields       string
 }
 
 // ShowCommand creates a new showCmd instance
@@ -37,6 +40,15 @@ func (c *showCmd) Usage() string {
 
 func (c *showCmd) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.timeInterval, "t", "-1h", "Example: -1h5m+5m")
+	f.StringVar(&c.fields, "f", "", "Example: 1,2,3")
+}
+
+func parseIntervals(fields string) []*types.IntInterval {
+	if len(fields) > 0 {
+		return types.ParseAllIntIntervals(fields)
+	}
+
+	return []*types.IntInterval{types.NewIntInterval(1, math.MaxInt32)}
 }
 
 func (c *showCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
@@ -50,6 +62,7 @@ func (c *showCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) 
 		Category: args[0],
 		Interval: utils.ParseTimeInterval(c.timeInterval, time.Now()),
 		Filters:  args[1:],
+		Fields:   parseIntervals(c.fields),
 		Config:   c.config})
 	p.Execute()
 

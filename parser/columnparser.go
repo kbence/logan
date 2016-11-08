@@ -19,6 +19,8 @@ func ParseColumns(output LogLineChannel, input LogLineChannel) {
 		ws := true
 		quoted := false
 		columnBuffer := bytes.Buffer{}
+		currentColumn := 1
+		line.Columns = map[int]string{}
 
 		for n := 0; n < lineLen; n++ {
 			char := line.Line[n]
@@ -33,7 +35,8 @@ func ParseColumns(output LogLineChannel, input LogLineChannel) {
 				}
 			} else {
 				if isws && !quoted {
-					line.Columns = append(line.Columns, columnBuffer.String())
+					line.Columns[currentColumn] = columnBuffer.String()
+					currentColumn++
 					columnBuffer = bytes.Buffer{}
 					ws = true
 				} else {
@@ -49,7 +52,7 @@ func ParseColumns(output LogLineChannel, input LogLineChannel) {
 		}
 
 		if columnBuffer.Len() > 0 {
-			line.Columns = append(line.Columns, columnBuffer.String())
+			line.Columns[currentColumn] = columnBuffer.String()
 		}
 
 		output <- line

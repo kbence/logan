@@ -119,7 +119,13 @@ func (e *Expression) EvaluateString(line *parser.LogLine) string {
 		if err != nil || int(column) > len(line.Columns) {
 			break
 		}
-		return line.Columns[column-1]
+
+		value, found := line.Columns[int(column)]
+		if !found {
+			value = ""
+		}
+
+		return value
 	}
 
 	return ""

@@ -1,6 +1,7 @@
 package pipeline
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"strings"
@@ -15,6 +16,7 @@ type PipelineSettings struct {
 	Category string
 	Interval *types.TimeInterval
 	Filters  []string
+	Fields   []*types.IntInterval
 	Config   *config.Configuration
 }
 
@@ -23,6 +25,7 @@ type PipelineBuilder struct {
 }
 
 func NewPipelineBuilder(settings PipelineSettings) *PipelineBuilder {
+	fmt.Println(settings.Fields)
 	return &PipelineBuilder{settings: settings}
 }
 
@@ -59,7 +62,8 @@ func (p *PipelineBuilder) Execute() {
 	logPipeline := NewLogPipeline(reader)
 
 	filterPipeline := NewFilterPipeline(logPipeline.Start(), filters)
-	outputPipeline := NewOutputPipeline(filterPipeline.Start())
+	transformPipeline := NewTransformPipeline(filterPipeline.Start(), p.settings.Fields)
+	outputPipeline := NewOutputPipeline(transformPipeline.Start())
 	outputPipeline.Start()
 
 	io.Copy(writer, chain.Between(p.settings.Interval.StartTime, p.settings.Interval.EndTime))
