@@ -34,7 +34,7 @@ func (c *showCmd) Synopsis() string {
 }
 
 func (c *showCmd) Usage() string {
-	return "list <category>:\n" +
+	return "show <category>:\n" +
 		"    print log lines from the given category\n"
 }
 
