@@ -1,7 +1,6 @@
 package pipeline
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"strings"
@@ -25,7 +24,6 @@ type PipelineBuilder struct {
 }
 
 func NewPipelineBuilder(settings PipelineSettings) *PipelineBuilder {
-	fmt.Println(settings.Fields)
 	return &PipelineBuilder{settings: settings}
 }
 
