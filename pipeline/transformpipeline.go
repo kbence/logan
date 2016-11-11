@@ -1,16 +1,13 @@
 package pipeline
 
-import (
-	"github.com/kbence/logan/parser"
-	"github.com/kbence/logan/types"
-)
+import "github.com/kbence/logan/types"
 
 type TransformPipeline struct {
-	inputChannel   parser.LogLineChannel
+	inputChannel   types.LogLineChannel
 	selectedFields []*types.IntInterval
 }
 
-func NewTransformPipeline(input parser.LogLineChannel, fields []*types.IntInterval) *TransformPipeline {
+func NewTransformPipeline(input types.LogLineChannel, fields []*types.IntInterval) *TransformPipeline {
 	return &TransformPipeline{inputChannel: input, selectedFields: fields}
 }
 
@@ -33,7 +30,7 @@ func createFieldList(intervals []*types.IntInterval, columns map[int]string) []i
 	return fieldList
 }
 
-func selectFields(output parser.LogLineChannel, input parser.LogLineChannel, fields []*types.IntInterval) {
+func selectFields(output types.LogLineChannel, input types.LogLineChannel, fields []*types.IntInterval) {
 	for {
 		line, more := <-input
 
@@ -41,7 +38,7 @@ func selectFields(output parser.LogLineChannel, input parser.LogLineChannel, fie
 			break
 		}
 
-		newLine := &parser.LogLine{Line: line.Line, Date: line.Date, Columns: map[int]string{}}
+		newLine := &types.LogLine{Line: line.Line, Date: line.Date, Columns: map[int]string{}}
 
 		for idx, f := range createFieldList(fields, line.Columns) {
 			newLine.Columns[idx] = line.Columns[f]
@@ -51,8 +48,8 @@ func selectFields(output parser.LogLineChannel, input parser.LogLineChannel, fie
 	}
 }
 
-func (p *TransformPipeline) Start() parser.LogLineChannel {
-	outputChannel := make(parser.LogLineChannel)
+func (p *TransformPipeline) Start() types.LogLineChannel {
+	outputChannel := make(types.LogLineChannel)
 
 	go selectFields(outputChannel, p.inputChannel, p.selectedFields)
 

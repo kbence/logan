@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/kbence/logan/parser"
+	"github.com/kbence/logan/types"
 )
 
 type Operator uint8
@@ -109,7 +109,7 @@ func (e *Expression) SetString(str string) {
 	e.Literal = str
 }
 
-func (e *Expression) EvaluateString(line *parser.LogLine) string {
+func (e *Expression) EvaluateString(line *types.LogLine) string {
 	switch e.Type {
 	case TypeLiteral:
 		return e.Literal
@@ -131,7 +131,7 @@ func (e *Expression) EvaluateString(line *parser.LogLine) string {
 	return ""
 }
 
-func (e *Expression) EvaluateBool(line *parser.LogLine) bool {
+func (e *Expression) EvaluateBool(line *types.LogLine) bool {
 	switch e.Type {
 	case TypeRelation:
 		switch e.Op {
@@ -177,6 +177,6 @@ func (f *ColumnFilter) String() string {
 	return f.expr.String()
 }
 
-func (f *ColumnFilter) Match(line *parser.LogLine) bool {
+func (f *ColumnFilter) Match(line *types.LogLine) bool {
 	return f.expr.EvaluateBool(line)
 }

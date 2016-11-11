@@ -5,6 +5,8 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/kbence/logan/types"
 )
 
 type preprocessorFunc func(string) string
@@ -29,7 +31,7 @@ var dateParsers = []dateParser{
 			return strings.Replace(input, ",", ".", -1)
 		}}}
 
-func ParseDates(output LogLineChannel, input LogLineChannel) {
+func ParseDates(output types.LogLineChannel, input types.LogLineChannel) {
 	location, err := time.LoadLocation("Local")
 
 	if err != nil {

@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/kbence/logan/parser"
+	"github.com/kbence/logan/types"
 )
 
 type OutputPipeline struct {
-	input parser.LogLineChannel
+	input types.LogLineChannel
 }
 
-func NewOutputPipeline(input parser.LogLineChannel) *OutputPipeline {
+func NewOutputPipeline(input types.LogLineChannel) *OutputPipeline {
 	return &OutputPipeline{input: input}
 }
 

@@ -4,9 +4,11 @@ import (
 	"bufio"
 	"io"
 	"log"
+
+	"github.com/kbence/logan/types"
 )
 
-func ParseLines(output LogLineChannel, reader io.Reader) {
+func ParseLines(output types.LogLineChannel, reader io.Reader) {
 	bufReader := bufio.NewReader(reader)
 
 	for {
@@ -17,7 +19,7 @@ func ParseLines(output LogLineChannel, reader io.Reader) {
 				line = line[0 : len(line)-1]
 			}
 
-			output <- &LogLine{Line: line}
+			output <- &types.LogLine{Line: line}
 		}
 
 		if err == io.EOF {

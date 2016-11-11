@@ -3,7 +3,7 @@ package filter
 import (
 	"time"
 
-	"github.com/kbence/logan/parser"
+	"github.com/kbence/logan/types"
 )
 
 type TimeFilter struct {
@@ -15,7 +15,7 @@ func NewTimeFilter(start time.Time, end time.Time) *TimeFilter {
 	return &TimeFilter{Start: start, End: end}
 }
 
-func (f *TimeFilter) Match(line *parser.LogLine) bool {
+func (f *TimeFilter) Match(line *types.LogLine) bool {
 	return (line.Date.After(f.Start) || line.Date.Equal(f.Start)) &&
 		(line.Date.Before(f.End) || line.Date.Equal(f.End))
 }

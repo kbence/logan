@@ -1,12 +1,16 @@
 package parser
 
-import "bytes"
+import (
+	"bytes"
+
+	"github.com/kbence/logan/types"
+)
 
 func isWhitespace(ch byte) bool {
 	return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r'
 }
 
-func ParseColumns(output LogLineChannel, input LogLineChannel) {
+func ParseColumns(output types.LogLineChannel, input types.LogLineChannel) {
 	for {
 		line, more := <-input
 

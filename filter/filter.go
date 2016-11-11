@@ -1,7 +1,7 @@
 package filter
 
-import "github.com/kbence/logan/parser"
+import "github.com/kbence/logan/types"
 
 type Filter interface {
-	Match(line *parser.LogLine) bool
+	Match(line *types.LogLine) bool
 }
