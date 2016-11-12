@@ -22,6 +22,7 @@ func main() {
 	subcommands.Register(command.ListCommand(config), "")
 	subcommands.Register(command.ShowCommand(config), "")
 	subcommands.Register(command.UniqueCommand(config), "")
+	subcommands.Register(command.InspectCommand(config), "")
 
 	flag.Parse()
 	ctx := context.Background()

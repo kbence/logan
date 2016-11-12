@@ -15,6 +15,7 @@ type OutputType int
 const (
 	OutputTypeLogLines OutputType = iota
 	OutputTypeUniqueLines
+	OutputTypeInspector
 )
 
 type PipelineSettings struct {
@@ -74,6 +75,10 @@ func (p *PipelineBuilder) Execute() {
 
 	case OutputTypeUniqueLines:
 		outputPipeline = NewUniquePipeline(transformPipeline.Start())
+		break
+
+	case OutputTypeInspector:
+		outputPipeline = NewInspectPipeline(transformPipeline.Start())
 		break
 	}
 

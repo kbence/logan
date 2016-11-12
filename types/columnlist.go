@@ -29,10 +29,7 @@ func (l ColumnList) Equals(other ColumnList) bool {
 func (l ColumnList) Join() string {
 	buffer := bytes.NewBufferString("")
 
-	keys := l.Keys()
-	sort.Ints(keys)
-
-	for _, k := range keys {
+	for _, k := range l.SortedKeys() {
 		buffer.WriteString(l[k])
 		buffer.WriteByte(0)
 	}
@@ -47,5 +44,11 @@ func (l ColumnList) Keys() []int {
 		keys = append(keys, k)
 	}
 
+	return keys
+}
+
+func (l ColumnList) SortedKeys() []int {
+	keys := l.Keys()
+	sort.Ints(keys)
 	return keys
 }
