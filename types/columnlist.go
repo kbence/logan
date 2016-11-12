@@ -3,6 +3,7 @@ package types
 import (
 	"bytes"
 	"hash/crc64"
+	"sort"
 )
 
 type ColumnList map[int]string
@@ -28,10 +29,23 @@ func (l ColumnList) Equals(other ColumnList) bool {
 func (l ColumnList) Join() string {
 	buffer := bytes.NewBufferString("")
 
-	for _, column := range l {
-		buffer.WriteString(column)
+	keys := l.Keys()
+	sort.Ints(keys)
+
+	for _, k := range keys {
+		buffer.WriteString(l[k])
 		buffer.WriteByte(0)
 	}
 
 	return buffer.String()
+}
+
+func (l ColumnList) Keys() []int {
+	keys := []int{}
+
+	for k := range l {
+		keys = append(keys, k)
+	}
+
+	return keys
 }
