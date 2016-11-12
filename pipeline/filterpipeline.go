@@ -20,7 +20,6 @@ func filterFunc(output types.LogLineChannel, input types.LogLineChannel, f filte
 		line, more := <-input
 
 		if !more {
-			close(output)
 			break
 		}
 
@@ -28,6 +27,8 @@ func filterFunc(output types.LogLineChannel, input types.LogLineChannel, f filte
 			output <- line
 		}
 	}
+
+	close(output)
 }
 
 func (p *FilterPipeline) Start() types.LogLineChannel {

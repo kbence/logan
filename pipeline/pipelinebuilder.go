@@ -1,7 +1,6 @@
 package pipeline
 
 import (
-	"io"
 	"log"
 	"strings"
 
@@ -11,12 +10,20 @@ import (
 	"github.com/kbence/logan/types"
 )
 
+type OutputType int
+
+const (
+	OutputTypeLogLines OutputType = iota
+	OutputTypeUniqueLines
+)
+
 type PipelineSettings struct {
 	Category string
 	Interval *types.TimeInterval
 	Filters  []string
 	Fields   []*types.IntInterval
 	Config   *config.Configuration
+	Output   OutputType
 }
 
 type PipelineBuilder struct {
@@ -53,16 +60,22 @@ func (p *PipelineBuilder) Execute() {
 		filters = append(filters, columnFilter)
 	}
 
-	reader, writer := io.Pipe()
-	defer reader.Close()
-	defer writer.Close()
-
-	logPipeline := NewLogPipeline(reader)
+	logPipeline := NewLogPipeline(chain.Between(p.settings.Interval.StartTime, p.settings.Interval.EndTime))
 
 	filterPipeline := NewFilterPipeline(logPipeline.Start(), filters)
 	transformPipeline := NewTransformPipeline(filterPipeline.Start(), p.settings.Fields)
-	outputPipeline := NewOutputPipeline(transformPipeline.Start())
-	outputPipeline.Start()
 
-	io.Copy(writer, chain.Between(p.settings.Interval.StartTime, p.settings.Interval.EndTime))
+	var outputPipeline OutputPipeline
+
+	switch p.settings.Output {
+	case OutputTypeLogLines:
+		outputPipeline = NewLogPrinterPipeline(transformPipeline.Start())
+		break
+
+	case OutputTypeUniqueLines:
+		outputPipeline = NewUniquePipeline(transformPipeline.Start())
+		break
+	}
+
+	<-outputPipeline.Start()
 }

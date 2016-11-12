@@ -12,36 +12,36 @@ import (
 	"golang.org/x/net/context"
 )
 
-type showCmd struct {
+type uniqueCmd struct {
 	config       *config.Configuration
 	timeInterval string
 	fields       string
 }
 
-// ShowCommand creates a new showCmd instance
-func ShowCommand(config *config.Configuration) subcommands.Command {
-	return &showCmd{config: config}
+// UniqCommand creates a new uniqueCmd instance
+func UniqueCommand(config *config.Configuration) subcommands.Command {
+	return &uniqueCmd{config: config}
 }
 
-func (c *showCmd) Name() string {
-	return "show"
+func (c *uniqueCmd) Name() string {
+	return "uniq"
 }
 
-func (c *showCmd) Synopsis() string {
-	return "Shows log lines from the given category"
+func (c *uniqueCmd) Synopsis() string {
+	return "Shows sum of unique lines"
 }
 
-func (c *showCmd) Usage() string {
-	return "show <category>:\n" +
+func (c *uniqueCmd) Usage() string {
+	return "list <category>:\n" +
 		"    print log lines from the given category\n"
 }
 
-func (c *showCmd) SetFlags(f *flag.FlagSet) {
+func (c *uniqueCmd) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.timeInterval, "t", "-1h", "Example: -1h5m+5m")
 	f.StringVar(&c.fields, "f", "", "Example: 1,2,3")
 }
 
-func (c *showCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
+func (c *uniqueCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	args := f.Args()
 
 	if len(args) < 1 {
@@ -54,7 +54,7 @@ func (c *showCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) 
 		Filters:  args[1:],
 		Fields:   utils.ParseIntervals(c.fields),
 		Config:   c.config,
-		Output:   pipeline.OutputTypeLogLines})
+		Output:   pipeline.OutputTypeUniqueLines})
 	p.Execute()
 
 	return subcommands.ExitSuccess

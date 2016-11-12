@@ -42,7 +42,6 @@ func ParseDates(output types.LogLineChannel, input types.LogLineChannel) {
 		line, more := <-input
 
 		if !more {
-			close(output)
 			break
 		}
 
@@ -62,6 +61,7 @@ func ParseDates(output types.LogLineChannel, input types.LogLineChannel) {
 		}
 
 		output <- line
-
 	}
+
+	close(output)
 }

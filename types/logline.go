@@ -5,7 +5,7 @@ import "time"
 type LogLine struct {
 	Line    string
 	Date    time.Time
-	Columns map[int]string
+	Columns ColumnList
 }
 
 type LogLineChannel chan *LogLine

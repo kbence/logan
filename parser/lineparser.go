@@ -23,7 +23,6 @@ func ParseLines(output types.LogLineChannel, reader io.Reader) {
 		}
 
 		if err == io.EOF {
-			close(output)
 			break
 		}
 
@@ -31,4 +30,6 @@ func ParseLines(output types.LogLineChannel, reader io.Reader) {
 			log.Fatalf("ERROR: %s", err)
 		}
 	}
+
+	close(output)
 }

@@ -46,6 +46,8 @@ func selectFields(output types.LogLineChannel, input types.LogLineChannel, field
 
 		output <- newLine
 	}
+
+	close(output)
 }
 
 func (p *TransformPipeline) Start() types.LogLineChannel {
