@@ -53,8 +53,16 @@ func (c *LogLineCounter) Add(line *LogLine) {
 	}
 }
 
-func (c *LogLineCounter) Max() int {
-	return 1
+func (c *LogLineCounter) Max() uint64 {
+	max := uint64(0)
+
+	for _, line := range c.counts {
+		if line.Count > max {
+			max = line.Count
+		}
+	}
+
+	return max
 }
 
 func (c *LogLineCounter) UniqueLines(sortDesc bool) []*UniqueLogLineCount {

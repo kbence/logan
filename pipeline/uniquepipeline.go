@@ -19,9 +19,37 @@ func (p *UniquePipeline) storeUniqueLine(line *types.LogLine) {
 	p.counter.Add(line)
 }
 
+func drawPercentageBar(width int, percentage float64) string {
+	barElements := []rune{' ', '▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'}
+	barElementsLen := len(barElements)
+	last := barElementsLen - 1
+	bar := ""
+
+	max := width * barElementsLen
+	state := int(percentage * float64(max))
+
+	for c := 0; c < width; c++ {
+		var ch rune
+
+		if c*barElementsLen < state {
+			ch = barElements[last]
+		} else if (c-1)*len(barElements) >= state {
+			ch = barElements[0]
+		} else {
+			ch = barElements[(state-(c-1)*barElementsLen)-1]
+		}
+
+		bar = fmt.Sprintf("%s%c", bar, ch)
+	}
+
+	return bar
+}
+
 func (p *UniquePipeline) printUniqueLines() {
+	max := p.counter.Max()
+
 	for _, line := range p.counter.UniqueLines(true) {
-		fmt.Printf("%9d | ", line.Count)
+		fmt.Printf("%9d|%s ", line.Count, drawPercentageBar(16, float64(line.Count)/float64(max)))
 		printColumnsInOrder(line.Line.Columns)
 	}
 }
