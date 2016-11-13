@@ -16,15 +16,17 @@ const (
 	OutputTypeLogLines OutputType = iota
 	OutputTypeUniqueLines
 	OutputTypeInspector
+	OutputTypeLineChart
 )
 
 type PipelineSettings struct {
-	Category string
-	Interval *types.TimeInterval
-	Filters  []string
-	Fields   []*types.IntInterval
-	Config   *config.Configuration
-	Output   OutputType
+	Category       string
+	Interval       *types.TimeInterval
+	Filters        []string
+	Fields         []*types.IntInterval
+	Config         *config.Configuration
+	Output         OutputType
+	OutputSettings interface{}
 }
 
 type PipelineBuilder struct {
@@ -79,6 +81,11 @@ func (p *PipelineBuilder) Execute() {
 
 	case OutputTypeInspector:
 		outputPipeline = NewInspectPipeline(transformPipeline.Start())
+		break
+
+	case OutputTypeLineChart:
+		outputPipeline = NewLineChartPipeline(transformPipeline.Start(),
+			p.settings.OutputSettings.(LineChartSettings))
 		break
 	}
 
