@@ -59,6 +59,10 @@ func (r *ChartRenderer) Render() string {
 	bitmap := createBitmap(doubleWidth, doubleHeight)
 	max := max(r.data)
 
+	if max == 0 {
+		max = 1
+	}
+
 	for y, row := range bitmap {
 		for x := range row {
 			if x > 0 {
