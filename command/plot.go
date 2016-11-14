@@ -49,6 +49,8 @@ func (c *plotCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) 
 	}
 
 	interval := utils.ParseTimeInterval(c.timeInterval, time.Now())
+	width, height := utils.GetTerminalDimensions()
+
 	p := pipeline.NewPipelineBuilder(pipeline.PipelineSettings{
 		Category: args[0],
 		Interval: interval,
@@ -57,8 +59,8 @@ func (c *plotCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) 
 		Config:   c.config,
 		Output:   pipeline.OutputTypeLineChart,
 		OutputSettings: pipeline.LineChartSettings{
-			Width:    80,
-			Height:   24,
+			Width:    width,
+			Height:   height - 1,
 			Interval: interval}})
 	p.Execute()
 

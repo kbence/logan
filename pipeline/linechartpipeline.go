@@ -19,12 +19,12 @@ type LineChartPipeline struct {
 }
 
 func NewLineChartPipeline(input types.LogLineChannel, settings LineChartSettings) *LineChartPipeline {
-	sampler := types.NewTimelineSampler(settings.Interval, settings.Width*2)
+	sampler := types.NewTimelineSampler(settings.Interval, (settings.Width-1)*2)
 	return &LineChartPipeline{input: input, settings: settings, sampler: sampler}
 }
 
 func (p *LineChartPipeline) render() {
-	chartRenderer := types.NewChartRenderer(p.settings.Width, p.settings.Height)
+	chartRenderer := types.NewChartRenderer(p.settings.Width-1, p.settings.Height-1)
 	chartRenderer.AddDataLine(p.sampler.Samples)
 	fmt.Println(chartRenderer.Render())
 }
