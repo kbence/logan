@@ -10,6 +10,45 @@ func isWhitespace(ch byte) bool {
 	return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r'
 }
 
+type separator struct {
+	start, end byte
+}
+
+var separators = []separator{
+	separator{'"', '"'},
+	separator{'[', ']'},
+}
+
+func isQuoteStart(char byte) bool {
+	for _, sep := range separators {
+		if sep.start == char {
+			return true
+		}
+	}
+
+	return false
+}
+
+func isQuoteEnd(char byte) bool {
+	for _, sep := range separators {
+		if sep.end == char {
+			return true
+		}
+	}
+
+	return false
+}
+
+func getQuoteType(startChar byte) int {
+	for i, sep := range separators {
+		if sep.start == startChar {
+			return i
+		}
+	}
+
+	return -1
+}
+
 func ParseColumns(output types.LogLineChannel, input types.LogLineChannel) {
 	for {
 		line, more := <-input
@@ -21,6 +60,7 @@ func ParseColumns(output types.LogLineChannel, input types.LogLineChannel) {
 		lineLen := len(line.Line)
 		ws := true
 		quoted := false
+		quoteType := 0
 		columnBuffer := bytes.Buffer{}
 		currentColumn := 1
 		line.Columns = map[int]string{}
@@ -31,7 +71,7 @@ func ParseColumns(output types.LogLineChannel, input types.LogLineChannel) {
 
 			if ws {
 				if !isws {
-					if char != '"' {
+					if !isQuoteStart(char) {
 						columnBuffer.WriteByte(char)
 					}
 					ws = false
@@ -43,14 +83,18 @@ func ParseColumns(output types.LogLineChannel, input types.LogLineChannel) {
 					columnBuffer = bytes.Buffer{}
 					ws = true
 				} else {
-					if char != '"' {
+					if !isQuoteEnd(char) {
 						columnBuffer.WriteByte(char)
 					}
 				}
 			}
 
-			if char == '"' {
+			if quoted && char == separators[quoteType].end || !quoted && isQuoteStart(char) {
 				quoted = !quoted
+
+				if quoted {
+					quoteType = getQuoteType(char)
+				}
 			}
 		}
 
