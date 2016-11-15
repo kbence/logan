@@ -7,24 +7,38 @@ import (
 )
 
 type LineChartSettings struct {
+	Mode     string
 	Width    int
 	Height   int
 	Interval *types.TimeInterval
 }
 
 type LineChartPipeline struct {
-	input    types.LogLineChannel
-	settings LineChartSettings
-	sampler  *types.TimelineSampler
+	input         types.LogLineChannel
+	settings      LineChartSettings
+	chartSettings *types.ChartSettings
+	sampler       *types.TimelineSampler
 }
 
 func NewLineChartPipeline(input types.LogLineChannel, settings LineChartSettings) *LineChartPipeline {
-	sampler := types.NewTimelineSampler(settings.Interval, (settings.Width-1)*2)
-	return &LineChartPipeline{input: input, settings: settings, sampler: sampler}
+	chartSettings := &types.ChartSettings{
+		Mode:   settings.Mode,
+		Width:  settings.Width - 1,
+		Height: settings.Height - 1,
+	}
+
+	sampler := types.NewTimelineSampler(settings.Interval, chartSettings.SamplerSize())
+
+	return &LineChartPipeline{
+		input:         input,
+		settings:      settings,
+		chartSettings: chartSettings,
+		sampler:       sampler,
+	}
 }
 
 func (p *LineChartPipeline) render() {
-	chartRenderer := types.NewChartRenderer(p.settings.Width-1, p.settings.Height-1)
+	chartRenderer := types.NewChartRenderer(p.chartSettings)
 	chartRenderer.AddDataLine(p.sampler.Samples)
 	fmt.Println(chartRenderer.Render())
 }

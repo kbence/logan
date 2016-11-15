@@ -2,12 +2,15 @@ package command
 
 import (
 	"flag"
+	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/google/subcommands"
 	"github.com/kbence/logan/config"
 	"github.com/kbence/logan/pipeline"
+	"github.com/kbence/logan/types"
 	"github.com/kbence/logan/utils"
 	"golang.org/x/net/context"
 )
@@ -16,6 +19,7 @@ type plotCmd struct {
 	config       *config.Configuration
 	timeInterval string
 	fields       string
+	mode         string
 }
 
 // PlotCommand creates a new plotCmd instance
@@ -39,6 +43,8 @@ func (c *plotCmd) Usage() string {
 func (c *plotCmd) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.timeInterval, "t", "-1h", "Example: -1h5m+5m")
 	f.StringVar(&c.fields, "f", "", "Example: 1,2,3")
+	f.StringVar(&c.mode, "m", "brailles",
+		fmt.Sprintf("One of the following modes: %s.", strings.Join(types.CharacterSets.GetNames(), ", ")))
 }
 
 func (c *plotCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
@@ -59,6 +65,7 @@ func (c *plotCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) 
 		Config:   c.config,
 		Output:   pipeline.OutputTypeLineChart,
 		OutputSettings: pipeline.LineChartSettings{
+			Mode:     c.mode,
 			Width:    width,
 			Height:   height - 1,
 			Interval: interval}})
