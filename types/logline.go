@@ -9,3 +9,7 @@ type LogLine struct {
 }
 
 type LogLineChannel chan *LogLine
+
+func NewLogLineChannel() LogLineChannel {
+	return make(LogLineChannel, 1024)
+}

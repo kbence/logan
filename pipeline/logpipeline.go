@@ -23,9 +23,9 @@ func (p *LogPipeline) GetOutput() types.LogLineChannel {
 }
 
 func (p *LogPipeline) Start() types.LogLineChannel {
-	p.lineChannel = make(types.LogLineChannel)
-	p.dateChannel = make(types.LogLineChannel)
-	p.columnChannel = make(types.LogLineChannel)
+	p.lineChannel = types.NewLogLineChannel()
+	p.dateChannel = types.NewLogLineChannel()
+	p.columnChannel = types.NewLogLineChannel()
 
 	go parser.ParseColumns(p.columnChannel, p.dateChannel)
 	go parser.ParseDates(p.dateChannel, p.lineChannel)

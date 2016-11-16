@@ -35,7 +35,7 @@ func (p *FilterPipeline) Start() types.LogLineChannel {
 	inputChannel := p.inputChannel
 
 	for _, f := range p.filters {
-		outputChannel := make(types.LogLineChannel)
+		outputChannel := types.NewLogLineChannel()
 		go filterFunc(outputChannel, inputChannel, f)
 		inputChannel = outputChannel
 	}
