@@ -2,6 +2,7 @@ package types
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 )
 
@@ -15,6 +16,18 @@ func max(data []uint64) uint64 {
 	}
 
 	return max
+}
+
+func humanReadableInt(value uint64) string {
+	suffices := []string{"", "k", "M", "G", "T", "P"}
+	magnitude := 0
+
+	for value > 1000 {
+		value /= 1000
+		magnitude++
+	}
+
+	return fmt.Sprintf("%d%s", value, suffices[magnitude])
 }
 
 func createBitmap(width, height int) [][]uint8 {
@@ -38,9 +51,10 @@ func getRunes(s string) []rune {
 }
 
 type CharacterSet struct {
-	name  string
-	runes []rune
-	bits  [][]uint8
+	name        string
+	runes       []rune
+	borderRunes []rune
+	bits        [][]uint8
 }
 
 func (s *CharacterSet) HorizontalMultiplier() int { return len(s.bits[0]) }
@@ -50,23 +64,26 @@ type CharacterSetList []CharacterSet
 
 var CharacterSets = CharacterSetList{
 	CharacterSet{
-		name:  "classic",
-		runes: getRunes(" '.|"),
+		name:        "classic",
+		runes:       getRunes(" '.|"),
+		borderRunes: getRunes("|+-"),
 		bits: [][]uint8{
 			[]uint8{0},
 			[]uint8{1},
 		},
 	},
 	CharacterSet{
-		name:  "block",
-		runes: getRunes(" █"),
+		name:        "block",
+		runes:       getRunes(" █"),
+		borderRunes: getRunes("┃┗━"),
 		bits: [][]uint8{
 			[]uint8{0},
 		},
 	},
 	CharacterSet{
-		name:  "quad",
-		runes: getRunes(" ▘▝▀▖▌▞▛▗▚▐▜▄▙▟█"),
+		name:        "quad",
+		runes:       getRunes(" ▘▝▀▖▌▞▛▗▚▐▜▄▙▟█"),
+		borderRunes: getRunes("┃┗━"),
 		bits: [][]uint8{
 			[]uint8{0, 1},
 			[]uint8{2, 3},
@@ -91,6 +108,7 @@ var CharacterSets = CharacterSetList{
 			"⣐⣑⣒⣓⣔⣕⣖⣗⣘⣙⣚⣛⣜⣝⣞⣟" +
 			"⣠⣡⣢⣣⣤⣥⣦⣧⣨⣩⣪⣫⣬⣭⣮⣯" +
 			"⣰⣱⣲⣳⣴⣵⣶⣷⣸⣹⣺⣻⣼⣽⣾⣿"),
+		borderRunes: getRunes("┃┗━"),
 		bits: [][]uint8{
 			[]uint8{0, 3},
 			[]uint8{1, 4},
@@ -127,6 +145,7 @@ type ChartSettings struct {
 	Border      bool
 	XAxisLabels bool
 	YAxisLabels bool
+	Interval    *TimeInterval
 }
 
 func (s *ChartSettings) EffectiveWidth() int {
@@ -134,6 +153,10 @@ func (s *ChartSettings) EffectiveWidth() int {
 
 	if s.Border {
 		width--
+	}
+
+	if s.YAxisLabels {
+		width -= 5
 	}
 
 	return width
@@ -144,6 +167,10 @@ func (s *ChartSettings) EffectiveHeight() int {
 	height := s.Height
 
 	if s.Border {
+		height--
+	}
+
+	if s.XAxisLabels {
 		height--
 	}
 
@@ -170,8 +197,8 @@ func (r *ChartRenderer) AddDataLine(data []uint64) {
 func (r *ChartRenderer) Render() string {
 	set := CharacterSets.Select(r.settings.Mode)
 
-	chartAreaWidth := r.settings.Width
-	chartAreaHeight := r.settings.Height
+	chartAreaWidth := r.settings.EffectiveWidth()
+	chartAreaHeight := r.settings.EffectiveHeight()
 
 	wMult := set.HorizontalMultiplier()
 	hMult := set.VerticalMultiplier()
@@ -216,9 +243,25 @@ func (r *ChartRenderer) Render() string {
 	}
 
 	lines := []string{}
+	linePrefix := ""
+
+	if r.settings.Border {
+		linePrefix = string(set.borderRunes[0])
+	}
 
 	for y := 0; y < int(mulHeight); y += hMult {
 		line := bytes.NewBufferString("")
+		value := max - (uint64(y+hMult)*max)/mulHeight
+
+		if r.settings.YAxisLabels {
+			if (chartAreaHeight-y/hMult-1)%5 == 0 {
+				line.WriteString(fmt.Sprintf("%4s ", humanReadableInt(value)))
+			} else {
+				line.WriteString("     ")
+			}
+		}
+
+		line.WriteString(linePrefix)
 
 		for x := 0; x < int(mulWidth); x += wMult {
 			bits := uint8(0)
@@ -231,6 +274,46 @@ func (r *ChartRenderer) Render() string {
 
 			line.WriteRune(set.runes[bits])
 		}
+
+		lines = append(lines, line.String())
+	}
+
+	if r.settings.Border {
+		line := bytes.NewBufferString("")
+
+		if r.settings.YAxisLabels {
+			line.WriteString("     ")
+		}
+
+		line.WriteRune(set.borderRunes[1])
+
+		for i := 0; i < chartAreaWidth; i++ {
+			line.WriteRune(set.borderRunes[2])
+		}
+
+		lines = append(lines, line.String())
+	}
+
+	if r.settings.XAxisLabels {
+		line := bytes.NewBufferString("")
+
+		if r.settings.YAxisLabels {
+			line.WriteString("      ")
+		}
+
+		format := "2006-01-02 15:04:05"
+
+		if r.settings.EffectiveWidth() < 20 {
+			format = "15:04:05"
+		}
+
+		line.WriteString(r.settings.Interval.StartTime.Format(format))
+
+		for i := 0; i < chartAreaWidth-len(format)*2; i++ {
+			line.WriteRune(' ')
+		}
+
+		line.WriteString(r.settings.Interval.EndTime.Format(format))
 
 		lines = append(lines, line.String())
 	}

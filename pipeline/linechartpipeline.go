@@ -22,9 +22,13 @@ type LineChartPipeline struct {
 
 func NewLineChartPipeline(input types.LogLineChannel, settings LineChartSettings) *LineChartPipeline {
 	chartSettings := &types.ChartSettings{
-		Mode:   settings.Mode,
-		Width:  settings.Width - 1,
-		Height: settings.Height - 1,
+		Mode:        settings.Mode,
+		Width:       settings.Width - 1,
+		Height:      settings.Height - 1,
+		Border:      true,
+		YAxisLabels: true,
+		XAxisLabels: true,
+		Interval:    settings.Interval,
 	}
 
 	sampler := types.NewTimelineSampler(settings.Interval, chartSettings.SamplerSize())
