@@ -1,6 +1,7 @@
 package command
 
 import (
+	"context"
 	"flag"
 	"log"
 	"time"
@@ -9,7 +10,6 @@ import (
 	"github.com/kbence/logan/config"
 	"github.com/kbence/logan/pipeline"
 	"github.com/kbence/logan/utils"
-	"golang.org/x/net/context"
 )
 
 type showCmd struct {

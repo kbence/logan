@@ -1,13 +1,13 @@
 package command
 
 import (
+	"context"
 	"flag"
 	"fmt"
 
 	"github.com/google/subcommands"
 	"github.com/kbence/logan/config"
 	"github.com/kbence/logan/source"
-	"golang.org/x/net/context"
 )
 
 type listCmd struct {

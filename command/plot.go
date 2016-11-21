@@ -1,6 +1,7 @@
 package command
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -12,7 +13,6 @@ import (
 	"github.com/kbence/logan/pipeline"
 	"github.com/kbence/logan/types"
 	"github.com/kbence/logan/utils"
-	"golang.org/x/net/context"
 )
 
 type plotCmd struct {
