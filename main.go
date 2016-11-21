@@ -1,17 +1,43 @@
 package main
 
 import (
+	"context"
 	"flag"
+	"log"
+	_ "net/http/pprof"
 	"os"
-
-	"golang.org/x/net/context"
+	"runtime/trace"
+	"time"
 
 	"github.com/google/subcommands"
-
 	"github.com/kbence/logan/command"
 	"github.com/kbence/logan/config"
 	_ "github.com/kbence/logan/source"
 )
+
+var traceFilename = flag.String("trace", "", "Save Go trace data to file")
+var traceFile *os.File
+
+func startTrace() {
+	if *traceFilename != "" {
+		var err error
+		traceFile, err = os.Create(*traceFilename)
+
+		if err != nil {
+			log.Panicf("ERROR opening trace file: %s", err)
+		}
+
+		trace.Start(traceFile)
+	}
+}
+
+func stopTrace() {
+	if traceFile != nil {
+		trace.Stop()
+		time.Sleep(time.Second)
+		defer traceFile.Close()
+	}
+}
 
 func main() {
 	config := config.Load()
@@ -26,6 +52,10 @@ func main() {
 	subcommands.Register(command.PlotCommand(config), "")
 
 	flag.Parse()
-	ctx := context.Background()
-	os.Exit(int(subcommands.Execute(ctx)))
+
+	startTrace()
+	exitCode := int(subcommands.Execute(context.Background()))
+	stopTrace()
+
+	os.Exit(exitCode)
 }
