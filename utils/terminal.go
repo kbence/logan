@@ -1,17 +1,18 @@
 package utils
 
-import terminal "github.com/wayneashleyberry/terminal-dimensions"
+import (
+	"os"
+
+	"golang.org/x/crypto/ssh/terminal"
+)
 
 func GetTerminalDimensions() (int, int) {
-	width, err := terminal.Width()
+	width, height, err := terminal.GetSize(int(os.Stdout.Fd()))
+
 	if err != nil {
 		width = 80
-	}
-
-	height, err := terminal.Height()
-	if err != nil {
 		height = 25
 	}
 
-	return int(width), int(height)
+	return width, height
 }
