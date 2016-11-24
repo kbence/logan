@@ -31,13 +31,41 @@ var dateParsers = []dateParser{
 			return strings.Replace(input, ",", ".", -1)
 		}}}
 
-func ParseDates(output types.LogLineChannel, input types.LogLineChannel) {
-	location, err := time.LoadLocation("Local")
+var location *time.Location
 
-	if err != nil {
-		log.Panicf("ERROR loading local timezone: %s", err)
+func getLocation() *time.Location {
+	if location == nil {
+		var err error
+
+		location, err = time.LoadLocation("Local")
+
+		if err != nil {
+			log.Panicf("ERROR loading local timezone: %s", err)
+		}
 	}
 
+	return location
+}
+
+func ParseDate(line string) *time.Time {
+	for _, parser := range dateParsers {
+		date := parser.reg.FindString(line)
+
+		if date != "" {
+			parsedDate, err := time.ParseInLocation(parser.layout, parser.preprocessor(date), getLocation())
+
+			if err != nil {
+				continue
+			}
+
+			return &parsedDate
+		}
+	}
+
+	return nil
+}
+
+func ParseDates(output types.LogLineChannel, input types.LogLineChannel) {
 	for {
 		line, more := <-input
 
@@ -45,19 +73,8 @@ func ParseDates(output types.LogLineChannel, input types.LogLineChannel) {
 			break
 		}
 
-		for _, parser := range dateParsers {
-			date := parser.reg.FindString(line.Line)
-
-			if date != "" {
-				parsedDate, err := time.ParseInLocation(parser.layout, parser.preprocessor(date), location)
-
-				if err != nil {
-					continue
-				}
-
-				line.Date = parsedDate
-				break
-			}
+		if date := ParseDate(line.Line); date != nil {
+			line.Date = *date
 		}
 
 		output <- line

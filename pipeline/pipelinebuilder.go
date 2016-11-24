@@ -63,7 +63,8 @@ func (p *PipelineBuilder) Execute() {
 		filters = append(filters, columnFilter)
 	}
 
-	logPipeline := NewLogPipeline(chain.Between(p.settings.Interval.StartTime, p.settings.Interval.EndTime))
+	logReader := chain.Between(p.settings.Interval.StartTime, p.settings.Interval.EndTime)
+	logPipeline := NewLogPipeline(NewTimeAwareBufferedReader(logReader, p.settings.Interval))
 
 	filterPipeline := NewFilterPipeline(logPipeline.Start(), filters)
 	transformPipeline := NewTransformPipeline(filterPipeline.Start(), p.settings.Fields)

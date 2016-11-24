@@ -18,10 +18,6 @@ func NewLogPipeline(reader io.Reader) *LogPipeline {
 	return &LogPipeline{reader: reader}
 }
 
-func (p *LogPipeline) GetOutput() types.LogLineChannel {
-	return p.columnChannel
-}
-
 func (p *LogPipeline) Start() types.LogLineChannel {
 	p.lineChannel = types.NewLogLineChannel()
 	p.dateChannel = types.NewLogLineChannel()
