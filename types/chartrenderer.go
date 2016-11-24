@@ -19,15 +19,21 @@ func max(data []uint64) uint64 {
 }
 
 func humanReadableInt(value uint64) string {
+	val := float64(value)
 	suffices := []string{"", "k", "M", "G", "T", "P"}
 	magnitude := 0
 
-	for value > 1000 {
-		value /= 1000
+	for val > 1000.0 {
+		val /= 1000.0
 		magnitude++
 	}
 
-	return fmt.Sprintf("%d%s", value, suffices[magnitude])
+	format := "%.1f%s"
+	if val >= 10.0 {
+		format = "%.0f%s"
+	}
+
+	return fmt.Sprintf(format, val, suffices[magnitude])
 }
 
 func createBitmap(width, height int) [][]uint8 {
