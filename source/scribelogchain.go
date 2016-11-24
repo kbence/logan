@@ -46,7 +46,14 @@ func (c *ScribeLogChain) Last() io.Reader {
 func (c *ScribeLogChain) Between(start time.Time, end time.Time) io.Reader {
 	readers := []io.Reader{}
 
-	for curTime := start; curTime.Before(end.Add(time.Second)); curTime = curTime.Add(time.Hour) {
+	endHour := end.Hour()
+	if end.Minute() > 0 || end.Second() > 0 {
+		endHour++
+	}
+
+	endTime := time.Date(end.Year(), end.Month(), end.Day(), endHour, 0, 0, 0, end.Location())
+
+	for curTime := start; curTime.Before(endTime); curTime = curTime.Add(time.Hour) {
 		logtime := fmt.Sprintf("%s_000%s", curTime.Format("2006-01-02"), curTime.Format("15"))
 		currentFile := fmt.Sprintf("%s/%s/%s-%s", c.directory, c.category, c.category, logtime)
 		useGzip := false
