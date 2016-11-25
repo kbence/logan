@@ -57,7 +57,7 @@ func (r *TimeAwareBufferedReader) seek() error {
 
 		date = parseLastDate(r.buffer, r.bufferLen)
 
-		if !date.Before(r.interval.StartTime) {
+		if date != nil && !date.Before(r.interval.StartTime) {
 			r.startReached = true
 			return nil
 		}
