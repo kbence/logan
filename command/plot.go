@@ -20,6 +20,7 @@ type plotCmd struct {
 	timeInterval string
 	fields       string
 	mode         string
+	autoUpdate   bool
 }
 
 // PlotCommand creates a new plotCmd instance
@@ -45,6 +46,7 @@ func (c *plotCmd) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.fields, "f", "", "Example: 1,2,3")
 	f.StringVar(&c.mode, "m", "brailles",
 		fmt.Sprintf("One of the following modes: %s.", strings.Join(types.CharacterSets.GetNames(), ", ")))
+	f.BoolVar(&c.autoUpdate, "u", true, "Auto-update chart during log parsing")
 }
 
 func (c *plotCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
@@ -65,10 +67,11 @@ func (c *plotCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) 
 		Config:   c.config,
 		Output:   pipeline.OutputTypeLineChart,
 		OutputSettings: pipeline.LineChartSettings{
-			Mode:     c.mode,
-			Width:    width,
-			Height:   height - 1,
-			Interval: interval}})
+			Mode:            c.mode,
+			Width:           width,
+			Height:          height - 1,
+			Interval:        interval,
+			FrequentUpdates: c.autoUpdate}})
 	p.Execute()
 
 	return subcommands.ExitSuccess
