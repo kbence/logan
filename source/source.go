@@ -29,3 +29,16 @@ func GetLogSource(cfg *config.Configuration, source string) LogSource {
 
 	return sourceObject
 }
+
+func GetSourcesForCategory(cfg *config.Configuration, category string) []LogSource {
+	sources := []LogSource{}
+
+	for _, factory := range logSourceFactories {
+		source := factory(cfg)
+		if source.ContainsCategory(category) {
+			sources = append(sources, source)
+		}
+	}
+
+	return sources
+}

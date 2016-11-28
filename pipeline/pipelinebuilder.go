@@ -37,22 +37,44 @@ func NewPipelineBuilder(settings PipelineSettings) *PipelineBuilder {
 	return &PipelineBuilder{settings: settings}
 }
 
-func (p *PipelineBuilder) Execute() {
-	categoryParts := strings.Split(p.settings.Category, "/")
+func (p *PipelineBuilder) getChain() (chain source.LogChain) {
+	var logSource source.LogSource
 
-	if len(categoryParts) != 2 {
-		log.Fatal("Log source must be in the following format: source/category!")
+	switch strings.Count(p.settings.Category, "/") {
+	case 0:
+		sources := source.GetSourcesForCategory(p.settings.Config, p.settings.Category)
+
+		if len(sources) > 1 {
+			log.Fatalf("Ambiguous category name: '%s'! Please specify source name!", p.settings.Category)
+		} else if len(sources) == 0 {
+			log.Fatalf("Catergory '%s' not found!", p.settings.Category)
+		}
+
+		chain = sources[0].GetChain(p.settings.Category)
+		break
+
+	case 1:
+		categoryParts := strings.Split(p.settings.Category, "/")
+		src := categoryParts[0]
+		category := categoryParts[1]
+
+		logSource = source.GetLogSource(p.settings.Config, src)
+		chain = logSource.GetChain(category)
+		break
+
+	default:
+		log.Fatal("Log source must be in the following format: [source/]category!")
 	}
-
-	src := categoryParts[0]
-	category := categoryParts[1]
-
-	logSource := source.GetLogSource(p.settings.Config, src)
-	chain := logSource.GetChain(category)
 
 	if chain == nil {
-		log.Fatalf("Category '%s' not found!", category)
+		log.Fatalf("Category '%s' not found!", p.settings.Category)
 	}
+
+	return chain
+}
+
+func (p *PipelineBuilder) Execute() {
+	chain := p.getChain()
 
 	filters := []filter.Filter{
 		filter.NewTimeFilter(p.settings.Interval.StartTime, p.settings.Interval.EndTime),

@@ -39,6 +39,16 @@ func (s *ScribeLogSource) GetCategories() []string {
 	return categories
 }
 
+func (s *ScribeLogSource) ContainsCategory(category string) bool {
+	for _, cat := range s.GetCategories() {
+		if cat == category {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (s *ScribeLogSource) getCategoryDirectoryMap() map[string]string {
 	categoryMap := make(map[string]string)
 
