@@ -77,7 +77,7 @@ func (p *PipelineBuilder) Execute() {
 	chain := p.getChain()
 
 	filters := []filter.Filter{
-		filter.NewTimeFilter(p.settings.Interval.StartTime, p.settings.Interval.EndTime),
+		filter.NewTimeFilter(p.settings.Interval),
 	}
 
 	for _, filterString := range p.settings.Filters {
@@ -85,7 +85,7 @@ func (p *PipelineBuilder) Execute() {
 		filters = append(filters, columnFilter)
 	}
 
-	logReader := chain.Between(p.settings.Interval.StartTime, p.settings.Interval.EndTime)
+	logReader := chain.Between(p.settings.Interval)
 	logPipeline := NewLogPipeline(NewTimeAwareBufferedReader(logReader, p.settings.Interval))
 
 	filterPipeline := NewFilterPipeline(logPipeline.Start(), filters)

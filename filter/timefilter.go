@@ -1,21 +1,15 @@
 package filter
 
-import (
-	"time"
-
-	"github.com/kbence/logan/types"
-)
+import "github.com/kbence/logan/types"
 
 type TimeFilter struct {
-	Start time.Time
-	End   time.Time
+	Interval *types.TimeInterval
 }
 
-func NewTimeFilter(start time.Time, end time.Time) *TimeFilter {
-	return &TimeFilter{Start: start, End: end}
+func NewTimeFilter(interval *types.TimeInterval) *TimeFilter {
+	return &TimeFilter{Interval: interval}
 }
 
 func (f *TimeFilter) Match(line *types.LogLine) bool {
-	return (line.Date.After(f.Start) || line.Date.Equal(f.Start)) &&
-		(line.Date.Before(f.End) || line.Date.Equal(f.End))
+	return f.Interval.Contains(line.Date)
 }

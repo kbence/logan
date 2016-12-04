@@ -18,6 +18,10 @@ func NewTimeInterval(startTime, endTime time.Time) *TimeInterval {
 	return &TimeInterval{StartTime: startTime, EndTime: endTime}
 }
 
+func (t *TimeInterval) Contains(tm time.Time) bool {
+	return !(tm.Before(t.StartTime) || tm.After(t.EndTime))
+}
+
 type IntInterval struct {
 	Start int
 	End   int

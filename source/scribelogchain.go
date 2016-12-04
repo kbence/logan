@@ -7,6 +7,8 @@ import (
 	"log"
 	"os"
 	"time"
+
+	"github.com/kbence/logan/types"
 )
 
 type ScribeLogChain struct {
@@ -43,8 +45,11 @@ func (c *ScribeLogChain) Last() io.Reader {
 	return file
 }
 
-func (c *ScribeLogChain) Between(start time.Time, end time.Time) io.Reader {
+func (c *ScribeLogChain) Between(interval *types.TimeInterval) io.Reader {
 	readers := []io.Reader{}
+
+	start := interval.StartTime
+	end := interval.EndTime
 
 	endHour := end.Hour()
 	if end.Minute() > 0 || end.Second() > 0 {

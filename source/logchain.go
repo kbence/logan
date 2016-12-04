@@ -2,11 +2,12 @@ package source
 
 import (
 	"io"
-	"time"
+
+	"github.com/kbence/logan/types"
 )
 
 // LogChain describes an interface to read logs from different files
 type LogChain interface {
 	Last() io.Reader
-	Between(start time.Time, end time.Time) io.Reader
+	Between(interval *types.TimeInterval) io.Reader
 }
