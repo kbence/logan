@@ -68,7 +68,7 @@ func (p *LineChartPipeline) updateIfNeeded() {
 		currentTime := time.Now()
 
 		if p.lastUpdateTime == nil {
-			p.nextUpdateLine = p.linesReceived + 1000
+			p.nextUpdateLine = p.linesReceived + 10
 		} else {
 			next := 1000000000 * (p.linesReceived - p.lastUpdateLine) /
 				uint64(currentTime.Sub(*p.lastUpdateTime))
