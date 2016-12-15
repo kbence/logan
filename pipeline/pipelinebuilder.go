@@ -99,7 +99,8 @@ func (p *PipelineBuilder) Execute() {
 		break
 
 	case OutputTypeUniqueLines:
-		outputPipeline = NewUniquePipeline(transformPipeline.Start())
+		outputPipeline = NewUniquePipeline(transformPipeline.Start(),
+			p.settings.OutputSettings.(UniqueSettings))
 		break
 
 	case OutputTypeInspector:
