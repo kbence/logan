@@ -8,6 +8,5 @@ import (
 
 // LogChain describes an interface to read logs from different files
 type LogChain interface {
-	Last() io.Reader
 	Between(interval *types.TimeInterval) io.Reader
 }

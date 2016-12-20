@@ -19,10 +19,6 @@ func NewStdinChain(category string) *StdinChain {
 	return nil
 }
 
-func (c *StdinChain) Last() io.Reader {
-	return os.Stdin
-}
-
 func (c *StdinChain) Between(interval *types.TimeInterval) io.Reader {
 	return os.Stdin
 }
