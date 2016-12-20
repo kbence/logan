@@ -45,7 +45,7 @@ func TestSimpleColumns(t *testing.T) {
 }
 
 func TestQuotedColumns(t *testing.T) {
-	input := makeChan("first \"second column\" \"third\"")
+	input := makeChan("first \"second column\" 'third'")
 	output := make(types.LogLineChannel)
 
 	go ParseColumns(output, input)
@@ -55,14 +55,14 @@ func TestQuotedColumns(t *testing.T) {
 	if len(result.Columns) != 3 {
 		t.Error("Result must have 3 columns")
 	} else if result.Columns[2] != "second column" {
-		t.Errorf("Column[1] \"%s\" != \"second column\"", result.Columns[1])
+		t.Errorf("Column[2] \"%s\" != \"second column\"", result.Columns[2])
 	} else if result.Columns[3] != "third" {
-		t.Errorf("Column[2] \"%s\" != \"third\"", result.Columns[2])
+		t.Errorf("Column[3] \"%s\" != \"third\"", result.Columns[3])
 	}
 }
 
 func TestBracketedColumns(t *testing.T) {
-	input := makeChan("first [second column] [third]")
+	input := makeChan("first [second column] (third column)")
 	output := make(types.LogLineChannel)
 
 	go ParseColumns(output, input)
@@ -71,9 +71,9 @@ func TestBracketedColumns(t *testing.T) {
 
 	if len(result.Columns) != 3 {
 		t.Error("Result must have 3 columns")
-	} else if result.Columns[2] != "second column" {
-		t.Errorf("Column[1] \"%s\" != \"second column\"", result.Columns[1])
-	} else if result.Columns[3] != "third" {
-		t.Errorf("Column[2] \"%s\" != \"third\"", result.Columns[2])
+	} else if result.Columns[2] != "[second column]" {
+		t.Errorf("Column[2] \"%s\" != \"[second column]\"", result.Columns[2])
+	} else if result.Columns[3] != "(third column)" {
+		t.Errorf("Column[3] \"%s\" != \"third column\"", result.Columns[3])
 	}
 }

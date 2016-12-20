@@ -12,11 +12,14 @@ func isWhitespace(ch byte) bool {
 
 type separator struct {
 	start, end byte
+	keep       bool
 }
 
 var separators = []separator{
-	separator{'"', '"'},
-	separator{'[', ']'},
+	separator{'"', '"', false},
+	separator{'\'', '\'', false},
+	separator{'[', ']', true},
+	separator{'(', ')', true},
 }
 
 func isQuoteStart(char byte) bool {
@@ -71,7 +74,7 @@ func ParseColumns(output types.LogLineChannel, input types.LogLineChannel) {
 
 			if ws {
 				if !isws {
-					if !isQuoteStart(char) {
+					if !isQuoteStart(char) || separators[getQuoteType(char)].keep {
 						columnBuffer.WriteByte(char)
 					}
 					ws = false
@@ -83,7 +86,7 @@ func ParseColumns(output types.LogLineChannel, input types.LogLineChannel) {
 					columnBuffer = bytes.Buffer{}
 					ws = true
 				} else {
-					if !isQuoteEnd(char) {
+					if !isQuoteEnd(char) || separators[quoteType].keep {
 						columnBuffer.WriteByte(char)
 					}
 				}
