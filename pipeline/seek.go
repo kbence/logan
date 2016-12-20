@@ -8,7 +8,7 @@ import (
 	"github.com/kbence/logan/types"
 )
 
-const readBlockSize = 102400
+const readBlockSize = 1024 * 1024
 
 type TimeAwareBufferedReader struct {
 	reader       io.Reader
