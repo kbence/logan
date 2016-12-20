@@ -3,6 +3,7 @@ package pipeline
 import (
 	"fmt"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/kbence/logan/types"
 	"github.com/kbence/logan/utils"
@@ -64,14 +65,23 @@ func drawPercentageBar(width int, percentage float64) string {
 func (p *UniquePipeline) printUniqueLines() int {
 	max := p.counter.Max()
 	linesPrinted := 0
+	truncateLines := p.settings.TopLimit > 0
 
 	for _, line := range p.counter.UniqueLines(true) {
 		if p.settings.TopLimit > 0 && linesPrinted >= p.settings.TopLimit {
 			return linesPrinted
 		}
 
-		fmt.Printf("%9d▕%s ", line.Count, drawPercentageBar(16, float64(line.Count)/float64(max)))
-		printColumnsInOrder(line.Line.Columns)
+		prefix := fmt.Sprintf("%9d▕%s ", line.Count, drawPercentageBar(16, float64(line.Count)/float64(max)))
+		prefixLen := utf8.RuneCount([]byte(prefix))
+		fmt.Print(prefix)
+
+		if truncateLines {
+			printColumnsInOrderWithLimit(line.Line.Columns, p.settings.TerminalWidth-prefixLen-1)
+		} else {
+			printColumnsInOrder(line.Line.Columns)
+		}
+
 		linesPrinted++
 	}
 

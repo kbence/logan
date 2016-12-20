@@ -17,15 +17,30 @@ func getKeys(m types.ColumnList) []int {
 	return keys
 }
 
-func printColumnsInOrder(columns types.ColumnList) {
-	format := "%s"
+func getLinesFromColumn(columns types.ColumnList) string {
+	line := ""
+	format := "%s%s"
 	keys := getKeys(columns)
 	sort.Ints(keys)
 
 	for _, key := range keys {
-		fmt.Printf(format, columns[key])
-		format = " %s"
+		line = fmt.Sprintf(format, line, columns[key])
+		format = "%s %s"
 	}
 
-	fmt.Printf("\n")
+	return line
+}
+
+func printColumnsInOrder(columns types.ColumnList) {
+	fmt.Printf("%s\n", getLinesFromColumn(columns))
+}
+
+func printColumnsInOrderWithLimit(columns types.ColumnList, limit int) {
+	line := getLinesFromColumn(columns)
+
+	if len(line) > limit {
+		line = fmt.Sprintf("%s%s", line[0:limit-1], "…")
+	}
+
+	fmt.Printf("%s\n", line)
 }
