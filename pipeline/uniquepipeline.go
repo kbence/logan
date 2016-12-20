@@ -3,10 +3,11 @@ package pipeline
 import (
 	"fmt"
 	"strings"
+	"sync"
+	"time"
 	"unicode/utf8"
 
 	"github.com/kbence/logan/types"
-	"github.com/kbence/logan/utils"
 	"github.com/kbence/logan/utils/terminfo"
 )
 
@@ -19,16 +20,16 @@ type UniquePipeline struct {
 	input            types.LogLineChannel
 	counter          *types.LogLineCounter
 	settings         UniqueSettings
-	timer            *utils.UpdateTimer
+	renderLock       *sync.Mutex
 	lastPrintedLines int
 }
 
 func NewUniquePipeline(input types.LogLineChannel, settings UniqueSettings) *UniquePipeline {
 	return &UniquePipeline{
-		input:    input,
-		counter:  types.NewLogLineCounter(),
-		settings: settings,
-		timer:    &utils.UpdateTimer{},
+		input:      input,
+		counter:    types.NewLogLineCounter(),
+		settings:   settings,
+		renderLock: &sync.Mutex{},
 	}
 }
 
@@ -102,26 +103,36 @@ func (p *UniquePipeline) clearLines(lines, width int) {
 	fmt.Println(terminfo.GoUpBy(lines))
 }
 
-func (p *UniquePipeline) updateIfNeeded() {
-	if p.settings.TopLimit <= 0 {
-		return
-	}
+func (p *UniquePipeline) updateLoop(exitChannel chan bool) {
+	for {
+		select {
+		case <-time.After(time.Second):
+			p.renderLock.Lock()
+			p.clearLines(p.lastPrintedLines, p.settings.TerminalWidth)
 
-	if p.timer.IsUpdateNeeded() {
-		p.clearLines(p.lastPrintedLines, p.settings.TerminalWidth)
+			numPrintedLines := p.printUniqueLines()
 
-		numPrintedLines := p.printUniqueLines()
+			if numPrintedLines > 0 {
+				fmt.Print(terminfo.GoUpBy(numPrintedLines))
+			}
 
-		if numPrintedLines > 0 {
-			fmt.Print(terminfo.GoUpBy(numPrintedLines))
+			p.lastPrintedLines = numPrintedLines
+			p.renderLock.Unlock()
+			break
+
+		case <-exitChannel:
+			return
 		}
-
-		p.lastPrintedLines = numPrintedLines
 	}
 }
 
 func (p *UniquePipeline) Start() chan bool {
 	exitChannel := make(chan bool)
+	updateExitChannel := make(chan bool)
+
+	if p.settings.TopLimit > 0 {
+		go p.updateLoop(updateExitChannel)
+	}
 
 	go func() {
 		for {
@@ -132,10 +143,16 @@ func (p *UniquePipeline) Start() chan bool {
 			}
 
 			p.storeUniqueLine(line)
-			p.updateIfNeeded()
 		}
 
+		if p.settings.TopLimit > 0 {
+			updateExitChannel <- true
+		}
+
+		p.renderLock.Lock()
 		p.printUniqueLines()
+		p.renderLock.Unlock()
+
 		exitChannel <- true
 	}()
 
