@@ -4,6 +4,8 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"sort"
+	"strings"
 
 	"github.com/google/subcommands"
 	"github.com/kbence/logan/config"
@@ -35,11 +37,16 @@ func (c *listCmd) Usage() string {
 func (c *listCmd) SetFlags(f *flag.FlagSet) {}
 
 func (c *listCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
+	allSources := []string{}
+
 	for name, source := range source.GetLogSources(c.config) {
 		for _, category := range source.GetCategories() {
-			fmt.Printf("%s/%s\n", name, category)
+			allSources = append(allSources, fmt.Sprintf("%s/%s", name, category))
 		}
 	}
+
+	sort.Strings(allSources)
+	fmt.Println(strings.Join(allSources, "\n"))
 
 	return subcommands.ExitSuccess
 }
