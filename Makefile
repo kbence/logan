@@ -9,7 +9,7 @@ TARGETS = \
 PROGRAMS = $(foreach target,$(TARGETS),target/logan-$(target))
 TARGET_DIR = ./target
 
-all: logan targets
+all: test targets
 
 dependencies:
 	go get -v
