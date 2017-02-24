@@ -3,16 +3,22 @@ package filter
 import (
 	"testing"
 
-	"github.com/kbence/logan/parser"
+	"github.com/kbence/logan/types"
 )
 
 type expectation struct {
 	Matches bool
-	Line    *parser.LogLine
+	Line    *types.LogLine
 }
 
 func newExpectation(matches bool, columns ...string) *expectation {
-	return &expectation{Matches: matches, Line: &parser.LogLine{Columns: columns}}
+	indexedColumns := types.ColumnList{}
+
+	for i, col := range columns {
+		indexedColumns[i+1] = col
+	}
+
+	return &expectation{Matches: matches, Line: &types.LogLine{Columns: indexedColumns}}
 }
 
 func expectMatch(columns ...string) *expectation {

@@ -13,3 +13,7 @@ type LogLineChannel chan *LogLine
 func NewLogLineChannel() LogLineChannel {
 	return make(LogLineChannel, 1024)
 }
+
+func (l *LogLine) String() string {
+	return l.Line
+}
