@@ -3,6 +3,8 @@ package parser
 import (
 	"testing"
 	"time"
+
+	"github.com/kbence/logan/types"
 )
 
 func ExpectParsedDate(t *testing.T, line string, date time.Time) {
@@ -17,6 +19,16 @@ func ExpectParsedDate(t *testing.T, line string, date time.Time) {
 		t.Errorf("Parsed date from line '%s' (parsed as '%s') doesn't match expected '%s'!",
 			line, *parsedDate, date)
 	}
+}
+
+func expectDate(t *testing.T, date, expectedDate time.Time) {
+	if date != expectedDate {
+		t.Errorf("Date '%s' doesn't match expected '%s'!", date, expectedDate)
+	}
+}
+
+func logLine(line string) *types.LogLine {
+	return &types.LogLine{Line: line}
 }
 
 func TestParseDateFindsDateInLog(t *testing.T) {
@@ -48,4 +60,20 @@ func TestParseDateFindsDateInLog(t *testing.T) {
 	ExpectParsedDate(t, "Dec 31 23:59:58 This is a test log line", yearEnd)
 
 	defaultLocationName = previousLocationName
+}
+
+func TestParseDatesUsesLastDateIfNoneFound(t *testing.T) {
+	expectedDate := time.Date(2016, 12, 5, 6, 57, 36, 0, getLocation())
+	input := types.NewLogLineChannel()
+	output := types.NewLogLineChannel()
+
+	go ParseDates(output, input)
+
+	input <- logLine("2016-12-05 06:57:36.000 This is a test log line...")
+	input <- logLine("   ...with continuation")
+
+	<-output
+	expectDate(t, (<-output).Date, expectedDate)
+
+	close(input)
 }

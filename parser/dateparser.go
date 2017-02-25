@@ -125,6 +125,8 @@ func ParseDate(line string) *time.Time {
 }
 
 func ParseDates(output types.LogLineChannel, input types.LogLineChannel) {
+	var lastDate *time.Time
+
 	for {
 		line, more := <-input
 
@@ -134,6 +136,9 @@ func ParseDates(output types.LogLineChannel, input types.LogLineChannel) {
 
 		if date := ParseDate(line.Line); date != nil {
 			line.Date = *date
+			lastDate = date
+		} else {
+			line.Date = *lastDate
 		}
 
 		output <- line
