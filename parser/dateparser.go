@@ -77,12 +77,13 @@ var dateParsers = []dateParser{
 		}}}
 
 var location *time.Location
+var defaultLocationName = "Local"
 
 func getLocation() *time.Location {
 	if location == nil {
 		var err error
 
-		location, err = time.LoadLocation("Local")
+		location, err = time.LoadLocation(defaultLocationName)
 
 		if err != nil {
 			log.Panicf("ERROR loading local timezone: %s", err)
