@@ -21,13 +21,18 @@ func ExpectParsedDate(t *testing.T, line string, date time.Time) {
 
 func TestParseDateFindsDateInLog(t *testing.T) {
 	now := time.Now()
+	exactDate := time.Date(2016, 12, 5, 6, 57, 36, 0, getLocation())
 	date := time.Date(now.Year(), 12, 5, 6, 57, 36, 0, getLocation())
 	yearEnd := time.Date(now.Year()-1, 12, 31, 23, 59, 58, 0, getLocation())
 
-	ExpectParsedDate(t, "2016-12-05 06:57:36,000 This is a test log line", date)
-	ExpectParsedDate(t, "2016-12-05 06:57:36.000 This is a test log line", date)
-	ExpectParsedDate(t, "2016-12-05 06:57:36,000+0100 This is a test log line", date)
-	ExpectParsedDate(t, "2016-12-05 06:57:36,000-0100 This is a test log line", date)
+	if now.Before(date) {
+		date = time.Date(date.Year()-1, 12, 5, 6, 57, 36, 0, getLocation())
+	}
+
+	ExpectParsedDate(t, "2016-12-05 06:57:36,000 This is a test log line", exactDate)
+	ExpectParsedDate(t, "2016-12-05 06:57:36.000 This is a test log line", exactDate)
+	ExpectParsedDate(t, "2016-12-05 06:57:36,000+0100 This is a test log line", exactDate)
+	ExpectParsedDate(t, "2016-12-05 06:57:36,000-0100 This is a test log line", exactDate)
 	ExpectParsedDate(t, "Dec  5 06:57:36 2016 This is a test log line", date)
 	ExpectParsedDate(t, "Dec 5 06:57:36 2016 This is a test log line", date)
 	ExpectParsedDate(t, "Dec  5 06:57:36 This is a test log line", date)
