@@ -18,6 +18,7 @@ type TimeAwareBufferedReader struct {
 	bufferLen    int
 	startReached bool
 	ended        bool
+	endError     error
 }
 
 func NewTimeAwareBufferedReader(reader io.Reader, interval *types.TimeInterval) *TimeAwareBufferedReader {
@@ -39,6 +40,11 @@ func (r *TimeAwareBufferedReader) readNext() error {
 		r.bufferLen += length
 	}
 
+	if err != nil && r.bufferLen > 0 {
+		r.endError = err
+		err = nil
+	}
+
 	r.bufferPos = 0
 
 	return err
@@ -48,8 +54,9 @@ func (r *TimeAwareBufferedReader) seek() error {
 	for {
 		err := r.readNext()
 
-		if err != nil {
+		if err != nil && err != io.EOF {
 			r.ended = true
+			r.endError = err
 			break
 		}
 
@@ -97,8 +104,9 @@ func (r *TimeAwareBufferedReader) Read(slice []byte) (int, error) {
 
 		if date := parseLastDate(r.buffer, r.bufferPos); date != nil && date.After(r.interval.EndTime) {
 			err = io.EOF
+		} else if r.ended && r.bufferPos >= r.bufferLen {
+			err = r.endError
 		}
-
 	}
 
 	return currentSlicePos, err
