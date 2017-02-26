@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"log"
 	"sort"
 	"strings"
 
@@ -38,11 +39,29 @@ func (c *listCmd) SetFlags(f *flag.FlagSet) {}
 
 func (c *listCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	allSources := []string{}
+	args := f.Args()
+
+	if len(args) > 1 {
+		log.Fatal("List can only take 0 or 1 arguments!")
+	}
 
 	for name, source := range source.GetLogSources(c.config) {
 		for _, category := range source.GetCategories() {
 			allSources = append(allSources, fmt.Sprintf("%s/%s", name, category))
 		}
+	}
+
+	if len(args) == 1 {
+		filter := args[0]
+		filteredSources := []string{}
+
+		for _, source := range allSources {
+			if strings.Contains(source, filter) {
+				filteredSources = append(filteredSources, source)
+			}
+		}
+
+		allSources = filteredSources
 	}
 
 	sort.Strings(allSources)
