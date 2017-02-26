@@ -137,7 +137,7 @@ func ParseDates(output types.LogLineChannel, input types.LogLineChannel) {
 		if date := ParseDate(line.Line); date != nil {
 			line.Date = *date
 			lastDate = date
-		} else {
+		} else if lastDate != nil {
 			line.Date = *lastDate
 		}
 

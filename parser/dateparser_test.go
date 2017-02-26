@@ -69,6 +69,7 @@ func TestParseDatesUsesLastDateIfNoneFound(t *testing.T) {
 
 	go ParseDates(output, input)
 
+	input <- logLine("   ...remnants from previous line")
 	input <- logLine("2016-12-05 06:57:36.000 This is a test log line...")
 	input <- logLine("   ...with continuation")
 
