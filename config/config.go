@@ -14,6 +14,28 @@ type Configuration struct {
 	Scribe struct {
 		Dirs []string
 	}
+	Generic struct {
+		Dirs     []string
+		MaxDepth int
+	}
+}
+
+const (
+	scribeSection  = "scribe"
+	genericSection = "generic"
+)
+
+type iniFile ini.File
+
+func (f *iniFile) extractDirs(section, defaultValue string) []string {
+	dirSpec := (*ini.File)(f).Section(section).Key("dirs").MustString(defaultValue)
+	dirs := []string{}
+
+	for _, dir := range strings.Split(dirSpec, ":") {
+		dirs = append(dirs, dir)
+	}
+
+	return dirs
 }
 
 // Load tries to load configuration from several locations
@@ -28,12 +50,9 @@ func Load() *Configuration {
 		log.Panicf("ERROR: %s\n", err)
 	}
 
-	config.Scribe.Dirs = []string{}
-	scribeDirs := cfg.Section("scribe").Key("dirs").MustString("/mnt/scribe:/var/log/scribe")
-
-	for _, dir := range strings.Split(scribeDirs, ":") {
-		config.Scribe.Dirs = append(config.Scribe.Dirs, dir)
-	}
+	config.Scribe.Dirs = (*iniFile)(cfg).extractDirs(scribeSection, "/mnt/scribe:/var/log/scribe")
+	config.Generic.Dirs = (*iniFile)(cfg).extractDirs(genericSection, "/var/log")
+	config.Generic.MaxDepth = cfg.Section(genericSection).Key("recursion").MustInt(1)
 
 	return &config
 }
