@@ -31,10 +31,6 @@ type GenericLogSource struct {
 	categories  genericLogMap
 }
 
-var reGzippedLog = regexp.MustCompile("^([a-zA-Z0-9_-]+)(\\.log)?\\.[0-9]+\\.gz$")
-var reNumberedLog = regexp.MustCompile("^([a-zA-Z0-9_-]+)(\\.log)?\\.[0-9]+$")
-var reCurrentLog = regexp.MustCompile("^([a-zA-Z0-9_-]+)(\\.log)?$")
-
 var genericFileNamePatterns = []*regexp.Regexp{
 	regexp.MustCompile("^([a-zA-Z0-9_-]+)(\\.log)?\\.[0-9]+\\.gz$"),
 	regexp.MustCompile("^([a-zA-Z0-9_-]+)(\\.log)?\\.[0-9]+$"),
