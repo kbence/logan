@@ -50,9 +50,9 @@ func (s *GenericLogSource) collectCategories(dir, prefix string, depth int) gene
 
 				if fileInfo.IsDir() {
 					subDir := path.Join(dir, fileName)
-					prefix := fmt.Sprintf("%s%s/", prefix, fileName)
+					newPrefix := fmt.Sprintf("%s%s/", prefix, fileName)
 
-					for _, subCategory := range s.collectCategories(subDir, prefix, depth-1) {
+					for _, subCategory := range s.collectCategories(subDir, newPrefix, depth-1) {
 						categories[subCategory.Name] = subCategory
 					}
 				} else {
