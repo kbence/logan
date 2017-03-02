@@ -38,7 +38,7 @@ func (c *plotCmd) Synopsis() string {
 
 func (c *plotCmd) Usage() string {
 	return "plot <category>:\n" +
-		"    draws a line chart from the nnumber of log lines\n"
+		"    draws a line chart from the number of log lines\n"
 }
 
 func (c *plotCmd) SetFlags(f *flag.FlagSet) {
