@@ -34,6 +34,7 @@ type GenericLogSource struct {
 
 var genericFileNamePatterns = []*regexp.Regexp{
 	regexp.MustCompile("^([a-zA-Z0-9_-]+)(\\.log)?\\.[0-9]+\\.gz$"),
+	regexp.MustCompile("^([a-zA-Z0-9_-]+)(\\.log)?\\.[0-9]+\\.bz2$"),
 	regexp.MustCompile("^([a-zA-Z0-9_-]+)(\\.log)?\\.[0-9]+$"),
 	regexp.MustCompile("^([a-zA-Z0-9_-]+)(\\.log)?$")}
 

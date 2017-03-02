@@ -1,6 +1,7 @@
 package source
 
 import (
+	"compress/bzip2"
 	"compress/gzip"
 	"io"
 	"log"
@@ -34,6 +35,8 @@ func (c *GenericLogChain) Between(interval *types.TimeInterval) io.Reader {
 			if err != nil {
 				log.Panicf("ERROR: %s\n", err)
 			}
+		} else if file[len(file)-4:] == ".bz2" {
+			reader = bzip2.NewReader(reader)
 		}
 
 		readers = append(readers, reader)
