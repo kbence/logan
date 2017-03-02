@@ -15,7 +15,8 @@ dependencies:
 	go get -v
 
 test: dependencies
-	find . -type d -not -path '*/.git*' -a -not -path '*/target*' | xargs -n 1 go test
+	find . -type d -not -path '*/.git*' -a -not -path '*/target*' -a -not -path '*/docs*' | \
+		xargs -n 1 go test
 
 logan: $(SOURCES)
 	go build -v .
