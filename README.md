@@ -97,6 +97,4 @@ Based on the current filters and time specifier, this command draws up a single 
 
 Example:
 
-    $ logan plot generic/syslog
-
 ![logan plot](docs/images/logan_plot_example.png)
