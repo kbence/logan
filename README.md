@@ -4,6 +4,17 @@
 
 Terminal-based tool for analyzing logs on the fly.
 
+## Installation
+
+
+### Requirements
+
+- [Golang](https://golang.org/)
+- [Peg](https://github.com/pointlander/peg) (only for development)
+
+
+    go get github.com/kbence/logan
+
 ## Usage
 
     logan list [query]
