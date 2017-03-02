@@ -107,9 +107,16 @@ func (s *GenericLogSource) GetCategories() []string {
 }
 
 func (s *GenericLogSource) ContainsCategory(category string) bool {
-	return false
+	s.loadCategories()
+	_, found := s.categories[category]
+
+	return found
 }
 
 func (s *GenericLogSource) GetChain(category string) LogChain {
-	return nil
+	if !s.ContainsCategory(category) {
+		return nil
+	}
+
+	return NewGenericLogChain(s.categories[category].Files)
 }
