@@ -56,6 +56,7 @@ func TestParseDateFindsDateInLog(t *testing.T) {
 	ExpectParsedDate(t, "Mon, 05 Dec 06:57:36.000 +0000 This is a test log line", date)
 	ExpectParsedDate(t, "Mon, 05 Dec 06:57:36.000 UTC This is a test log line", date)
 	ExpectParsedDate(t, "Mon 05 Dec 06:57:36 UTC This is a test log line", date)
+	ExpectParsedDate(t, "Mon Dec  5 06:57:36.000 This is a test log line", date)
 	// This test might fail for two minutes per year:
 	ExpectParsedDate(t, "Dec 31 23:59:58 This is a test log line", yearEnd)
 

@@ -74,6 +74,12 @@ var dateParsers = []dateParser{
 		layout: "Mon 02 Jan 15:04:05 MST",
 		preprocessor: func(input string) string {
 			return commaMatcher.ReplaceAllString(input, "")
+		}},
+	dateParser{
+		reg:    regexp.MustCompile("^(\\w{3} \\w{3} ( \\d|\\d{2}) \\d{2}:\\d{2}:\\d{2}.\\d{3})"),
+		layout: "Mon Jan 2 15:04:05.000",
+		preprocessor: func(input string) string {
+			return commaMatcher.ReplaceAllString(input, " ")
 		}}}
 
 var location *time.Location
