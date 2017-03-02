@@ -74,8 +74,6 @@ func TestSeekFirstReadHitsEnd(t *testing.T) {
 }
 
 func TestSeekWithReadLine(t *testing.T) {
-	var err error
-
 	location, _ := time.LoadLocation("Local")
 	startTime := time.Date(2017, 2, 26, 8, 0, 0, 0, location)
 	endTime := time.Date(2017, 2, 26, 9, 0, 0, 0, location)
@@ -87,8 +85,8 @@ func TestSeekWithReadLine(t *testing.T) {
 	bufferedReader := NewTimeAwareBufferedReader(multiReader, types.NewTimeInterval(startTime, endTime))
 	reader := bufio.NewReader(bufferedReader)
 
-	line1, err := reader.ReadString('\n')
-	line2, err := reader.ReadString('\n')
+	line1, err1 := reader.ReadString('\n')
+	line2, err2 := reader.ReadString('\n')
 
 	if line1 != logContent[0:43] {
 		t.Errorf("Expected to read '%s' but reader returned '%s'!",
@@ -96,8 +94,9 @@ func TestSeekWithReadLine(t *testing.T) {
 		return
 	}
 
-	if err != nil {
-		t.Errorf("Expected no error, got '%s' instead!", err)
+	if err1 != nil {
+		t.Errorf("Expected no error, got '%s' instead!", err1)
+		return
 	}
 
 	if line2 != logContent[43:91] {
@@ -106,7 +105,7 @@ func TestSeekWithReadLine(t *testing.T) {
 		return
 	}
 
-	if err != io.EOF {
-		t.Errorf("Expected error io.EOF at end, got '%s' instead!", err)
+	if err2 != io.EOF {
+		t.Errorf("Expected error io.EOF at end, got '%s' instead!", err2)
 	}
 }
