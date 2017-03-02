@@ -40,8 +40,7 @@ func NewPipelineBuilder(settings PipelineSettings) *PipelineBuilder {
 func (p *PipelineBuilder) getChain() (chain source.LogChain) {
 	var logSource source.LogSource
 
-	switch strings.Count(p.settings.Category, "/") {
-	case 0:
+	if strings.Count(p.settings.Category, "/") == 0 {
 		sources := source.GetSourcesForCategory(p.settings.Config, p.settings.Category)
 
 		if len(sources) > 1 {
@@ -51,19 +50,19 @@ func (p *PipelineBuilder) getChain() (chain source.LogChain) {
 		}
 
 		chain = sources[0].GetChain(p.settings.Category)
-		break
-
-	case 1:
-		categoryParts := strings.Split(p.settings.Category, "/")
+	} else {
+		categoryParts := strings.SplitN(p.settings.Category, "/", 2)
 		src := categoryParts[0]
 		category := categoryParts[1]
 
 		logSource = source.GetLogSource(p.settings.Config, src)
-		chain = logSource.GetChain(category)
-		break
 
-	default:
-		log.Fatal("Log source must be in the following format: [source/]category!")
+		if logSource == nil {
+			log.Fatalf("Log source '%s' is not found! For sources containing '/' in their names, "+
+				"please use their full path (source/name)!", src)
+		}
+
+		chain = logSource.GetChain(category)
 	}
 
 	if chain == nil {

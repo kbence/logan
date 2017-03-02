@@ -53,7 +53,7 @@ func (s *GenericLogSource) collectCategories(dir, prefix string, depth int) gene
 					newPrefix := fmt.Sprintf("%s%s/", prefix, fileName)
 
 					for _, subCategory := range s.collectCategories(subDir, newPrefix, depth-1) {
-						categories[subCategory.Name] = subCategory
+						categories[fmt.Sprintf("%s%s", prefix, subCategory.Name)] = subCategory
 					}
 				} else {
 					for _, pattern := range genericFileNamePatterns {
@@ -65,13 +65,14 @@ func (s *GenericLogSource) collectCategories(dir, prefix string, depth int) gene
 			}
 
 			for name, files := range categoryMap {
-				category := genericLogCategory{Name: name}
+				fullName := fmt.Sprintf("%s%s", prefix, name)
+				category := genericLogCategory{Name: fullName}
 
 				for _, file := range files {
 					category.Files = append(category.Files, path.Join(dir, file.Name()))
 				}
 
-				categories[name] = category
+				categories[fullName] = category
 			}
 		}
 	}
