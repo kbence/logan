@@ -41,6 +41,10 @@ func (r *TimeAwareBufferedReader) readNext() error {
 	}
 
 	if err != nil && r.bufferLen > 0 {
+		if r.endError != nil {
+			return r.endError
+		}
+
 		r.endError = err
 		err = nil
 	}
@@ -54,9 +58,13 @@ func (r *TimeAwareBufferedReader) seek() error {
 	for {
 		err := r.readNext()
 
-		if err != nil && err != io.EOF {
+		if err != nil {
+			if err != io.EOF {
+				return err
+			}
+
 			r.ended = true
-			r.endError = err
+			r.startReached = true
 			break
 		}
 
@@ -66,7 +74,7 @@ func (r *TimeAwareBufferedReader) seek() error {
 
 		if date != nil && !date.Before(r.interval.StartTime) {
 			r.startReached = true
-			return nil
+			break
 		}
 	}
 
