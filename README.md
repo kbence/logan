@@ -98,3 +98,21 @@ Based on the current filters and time specifier, this command draws up a single 
 Example:
 
 ![logan plot](docs/images/logan_plot_example.png)
+
+### Filters
+
+Filters can be used for all the commands above except `list`. A filter consists of one of more expressions connected with the `AND` and `OR` logical operators. The currently available operators are `==`, `!=`, `~=` meaning equality, non-equality and pattern match respectively. Pattern match is done by Go's regular expressions.
+
+Currently only string literals are supported as values, surrounded by quotes. A few example filters:
+
+- `$12 == "404"` - field 12 is exactly the string `404`
+- `$5 != $7` - field 5 doesn't equal field 7
+- `$10 ~= "^https:" AND $11 == "123"` - field 10 starts with the string `https:` and field 11 is exactly `123`
+
+Multiple filters can be specified, in this case they act like there are `AND` operator between them (although under the hood, new filter instances are being created).
+
+IMPORTANT! In most of the shells, strings like `$1`, `$2`, etc. are expanded as variables unless they are properly escaped (e.g. with apostrophes or backslashes). The current solution is to put them in apostrophes, like this:
+
+    logan show generic/syslog '$4 == "myhost"'
+
+The field marker character (`$`) and the regexp matcher (`~=`) are subjects to change in the future.
