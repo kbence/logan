@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 	"regexp"
+	"sort"
 
 	"github.com/kbence/logan/config"
 )
@@ -71,6 +72,8 @@ func (s *GenericLogSource) collectCategories(dir, prefix string, depth int) gene
 				for _, file := range files {
 					category.Files = append(category.Files, path.Join(dir, file.Name()))
 				}
+
+				sort.Sort(sort.Reverse(sort.StringSlice(category.Files)))
 
 				categories[fullName] = category
 			}
