@@ -44,7 +44,7 @@ func (c *plotCmd) Usage() string {
 func (c *plotCmd) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.timeInterval, "t", "-1h", "Example: -1h5m+5m")
 	f.StringVar(&c.fields, "f", "", "Example: 1,2,3")
-	f.StringVar(&c.mode, "m", "brailles",
+	f.StringVar(&c.mode, "m", "braille",
 		fmt.Sprintf("One of the following modes: %s.", strings.Join(types.CharacterSets.GetNames(), ", ")))
 	f.BoolVar(&c.autoUpdate, "u", true, "Auto-update chart during log parsing")
 }

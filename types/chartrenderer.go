@@ -96,7 +96,7 @@ var CharacterSets = CharacterSetList{
 		},
 	},
 	CharacterSet{
-		name: "brailles",
+		name: "braille",
 		runes: getRunes("" +
 			"⠀⠁⠂⠃⠄⠅⠆⠇⠈⠉⠊⠋⠌⠍⠎⠏" +
 			"⠐⠑⠒⠓⠔⠕⠖⠗⠘⠙⠚⠛⠜⠝⠞⠟" +
