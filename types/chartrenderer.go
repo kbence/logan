@@ -18,7 +18,7 @@ func max(data []uint64) uint64 {
 	return max
 }
 
-func humanReadableInt(value uint64) string {
+func humanReadableDouble(value float64) string {
 	val := float64(value)
 	suffices := []string{"", "k", "M", "G", "T", "P"}
 	magnitude := 0
@@ -257,11 +257,11 @@ func (r *ChartRenderer) Render() string {
 
 	for y := 0; y < int(mulHeight); y += hMult {
 		line := bytes.NewBufferString("")
-		value := max - (uint64(y+hMult)*max)/mulHeight
+		value := float64(max) - float64(uint64(y+hMult)*max)/float64(mulHeight)
 
 		if r.settings.YAxisLabels {
 			if (chartAreaHeight-y/hMult-1)%5 == 0 {
-				line.WriteString(fmt.Sprintf("%4s ", humanReadableInt(value)))
+				line.WriteString(fmt.Sprintf("%4s ", humanReadableDouble(value)))
 			} else {
 				line.WriteString("     ")
 			}
