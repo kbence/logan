@@ -87,7 +87,6 @@ The main purpose of this command is to inspect the log lines themselves and to b
 
 The following command will show log lines from /var/log/syslog for the last hour.
 
-
     # logan show generic/syslog
 
 ### logan uniq (to replace sort-uniq-sort pipes)
@@ -105,6 +104,13 @@ The above command counts the unique number lines grouped by field 5 from the las
 ### logan plot (creates a textual chart of the log data)
 
 Based on the current filters and time specifier, this command draws up a single chart based on your terminal's dimensions (using 80x25 by default if it cannot be determined).
+
+`-m` specifies the character set for plotting, the following sets can be used:
+
+- `braille` - Braille characters, multiplies the horizontal and vertical resolution by 2 and 4 respectively.
+- `quad` - unicode block drawing characters, the doubles the resolution in both directions.
+- `block` - use the block drawing character
+- `classic` - use ASCII7 characters only (pipeline, apostrophe, point and the classic box drawing methods).
 
 Example:
 
