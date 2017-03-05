@@ -15,5 +15,6 @@ deploy:
   local-dir: target
   upload-dir: latest
   acl: public_read
+  skip_cleanup: true
   on:
     repo: kbence/logan
