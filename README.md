@@ -12,8 +12,9 @@ Terminal-based tool for analyzing logs on the fly.
 - [Golang](https://golang.org/)
 - [Peg](https://github.com/pointlander/peg) (only for development)
 
-
-    go get github.com/kbence/logan
+```
+go get github.com/kbence/logan
+```
 
 ## Usage
 
