@@ -24,7 +24,6 @@ func NewPlotCommand(cfg *config.Configuration) *cobra.Command {
 	plotCommand := &cobra.Command{
 		Use:   "plot",
 		Short: "Plots a time-based line chart from the number of log lines",
-		Long:  ``,
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) < 1 {
 				log.Fatal("You have to pass a log source to this command!")

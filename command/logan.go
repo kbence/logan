@@ -19,7 +19,6 @@ func NewLoganCommand(cfg *config.Configuration) *cobra.Command {
 	command := &cobra.Command{
 		Use:   "logan",
 		Short: "Command line tool for analyzing logs",
-		Long:  ``,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return cmd.Help()
 		},

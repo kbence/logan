@@ -19,7 +19,6 @@ func NewShowCommand(cfg *config.Configuration) *cobra.Command {
 	showCommand := &cobra.Command{
 		Use:   "show",
 		Short: "Shows log lines from the given category",
-		Long:  ``,
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) < 1 {
 				log.Fatal("You have to pass a log source to this command!")

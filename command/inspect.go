@@ -19,7 +19,6 @@ func NewInspectCommand(cfg *config.Configuration) *cobra.Command {
 	inspectCommand := &cobra.Command{
 		Use:   "inspect",
 		Short: "Inspects the first 5 lines of log",
-		Long:  ``,
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) < 1 {
 				log.Fatal("You have to pass a log source to this command!")

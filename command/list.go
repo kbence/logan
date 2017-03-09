@@ -16,7 +16,6 @@ func NewListCommand(cfg *config.Configuration) *cobra.Command {
 	return &cobra.Command{
 		Use:   "list",
 		Short: "Lists available log categories",
-		Long:  ``,
 		Run: func(cmd *cobra.Command, args []string) {
 			allSources := []string{}
 
