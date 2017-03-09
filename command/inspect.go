@@ -1,59 +1,42 @@
 package command
 
 import (
-	"context"
-	"flag"
 	"log"
 	"time"
 
-	"github.com/google/subcommands"
 	"github.com/kbence/logan/config"
 	"github.com/kbence/logan/pipeline"
 	"github.com/kbence/logan/utils"
+	"github.com/spf13/cobra"
 )
 
-type inspectCmd struct {
-	config       *config.Configuration
-	timeInterval string
-}
+// NewInspectCommand returns an instance of `inspect` command that is designed
+// to inspect the first 5 lines from the selected log category that matches
+// the current time and filter specification
+func NewInspectCommand(cfg *config.Configuration) *cobra.Command {
+	var timeInterval string
 
-// InspectCommand creates a new inspectCmd instance
-func InspectCommand(config *config.Configuration) subcommands.Command {
-	return &inspectCmd{config: config}
-}
+	inspectCommand := &cobra.Command{
+		Use:   "inspect",
+		Short: "Inspects the first 5 lines of log",
+		Long:  ``,
+		Run: func(cmd *cobra.Command, args []string) {
+			if len(args) < 1 {
+				log.Fatal("You have to pass a log source to this command!")
+			}
 
-func (c *inspectCmd) Name() string {
-	return "inspect"
-}
-
-func (c *inspectCmd) Synopsis() string {
-	return "Inspects the first 5 lines of log"
-}
-
-func (c *inspectCmd) Usage() string {
-	return "inspect <category>:\n" +
-		"    helper command to show field values in log files\n"
-}
-
-func (c *inspectCmd) SetFlags(f *flag.FlagSet) {
-	f.StringVar(&c.timeInterval, "t", "-1h", "Example: -1h5m+5m")
-}
-
-func (c *inspectCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
-	args := f.Args()
-
-	if len(args) < 1 {
-		log.Fatal("You have to pass a log source to this command!")
+			p := pipeline.NewPipelineBuilder(pipeline.PipelineSettings{
+				Category: args[0],
+				Interval: utils.ParseTimeInterval(timeInterval, time.Now()),
+				Filters:  args[1:],
+				Fields:   utils.ParseIntervals(""),
+				Config:   cfg,
+				Output:   pipeline.OutputTypeInspector})
+			p.Execute()
+		},
 	}
 
-	p := pipeline.NewPipelineBuilder(pipeline.PipelineSettings{
-		Category: args[0],
-		Interval: utils.ParseTimeInterval(c.timeInterval, time.Now()),
-		Filters:  args[1:],
-		Fields:   utils.ParseIntervals(""),
-		Config:   c.config,
-		Output:   pipeline.OutputTypeInspector})
-	p.Execute()
+	inspectCommand.Flags().StringVarP(&timeInterval, "time", "t", "-1h", "Example: -1h5m+5m")
 
-	return subcommands.ExitSuccess
+	return inspectCommand
 }
