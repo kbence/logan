@@ -7,9 +7,9 @@ type ColumnFilterParser Peg {
 filterExpression <- { p.Expr = &Expression{} }
                     andFilterExpression
                     (
-                      ws
+                      ws+
                       orOperator
-                      ws
+                      ws+
                       { p.Expr = p.Expr.PushLeftGoRight(OpOr) }
                       andFilterExpression
                       { p.Expr = p.Expr.GoUp() }
@@ -18,9 +18,9 @@ filterExpression <- { p.Expr = &Expression{} }
 
 andFilterExpression <- columnFilterExpression
                        (
-                         ws
+                         ws+
                          andOperator
-                         ws
+                         ws+
                          { p.Expr = p.Expr.PushLeftGoRight(OpAnd) }
                          columnFilterExpression
                          { p.Expr = p.Expr.GoUp() }
@@ -30,10 +30,10 @@ columnFilterExpression <- relation
 relation <- ( { p.Expr = p.Expr.GoLeft() }
               expression
               { p.Expr = p.Expr.GoUp() }
-              ws
+              ws*
               { p.Expr.SetType(TypeRelation) }
               relationOperator
-              ws
+              ws*
               { p.Expr = p.Expr.GoRight() }
               expression
               { p.Expr = p.Expr.GoUp() }

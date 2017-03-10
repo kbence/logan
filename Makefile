@@ -1,6 +1,8 @@
 .PHONY: all test dependencies targets
 
 SOURCES := $(shell find . -type f -name '*.go')
+PEGS := $(shell find . -type f -name '*.peg')
+
 TARGETS := \
 	linux-386 \
 	linux-amd64 \
@@ -8,11 +10,14 @@ TARGETS := \
 
 TARGET_DIR := target
 PROGRAMS := $(foreach target,$(TARGETS),$(TARGET_DIR)/logan-$(target))
+GENERATED_PEGS := $(PEGS:.peg=.peg.go)
 
-all: test targets
+all: parsers test targets
 
 dependencies:
 	go get -v
+
+parsers: $(GENERATED_PEGS)
 
 test: dependencies
 	find . -type d -not -path '*/.git*' -a -not -path '*/target*' -a -not -path '*/docs*' | \
@@ -30,3 +35,6 @@ $(PROGRAMS): $(SOURCES)
 	GOOS=$$(echo "$@" | xargs basename | cut -d- -f2) \
 	GOARCH=$$(echo "$@" | xargs basename | cut -d- -f3) \
 	go build -v -o "$@" .
+
+%.peg.go: %.peg
+	peg $<
