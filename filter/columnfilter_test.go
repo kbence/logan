@@ -52,6 +52,12 @@ func TestSimpleEqualFilterWorks(t *testing.T) {
 
 }
 
+func TestSimpleEqualFilterWorksWithoutSpaces(t *testing.T) {
+	testFilter(t, "$3==\"teststring\"",
+		expectMatch("", "", "teststring"),
+		expectDoesntMatch("", "", "string"))
+}
+
 func TestShouldNotPanicIfColumnIndexIsWrong(t *testing.T) {
 	testFilter(t, "$4 == \"teststring\"",
 		expectDoesntMatch("", "", "teststring"))
