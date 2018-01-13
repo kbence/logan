@@ -47,7 +47,6 @@ func ParseDate(line string) *time.Time {
 						parsedDate.Nanosecond(), parsedDate.Location())
 				}
 			}
-
 			return &parsedDate
 		}
 	}
