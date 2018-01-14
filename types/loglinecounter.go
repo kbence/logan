@@ -1,6 +1,9 @@
 package types
 
-import "sort"
+import (
+	"sort"
+	"sync"
+)
 
 type UniqueLogLineCount struct {
 	Line  *LogLine
@@ -36,6 +39,7 @@ func sortByCountDesc(x, y *UniqueLogLineCount) bool {
 
 type LogLineCounter struct {
 	counts map[string]*UniqueLogLineCount
+	lock   sync.Mutex
 }
 
 func NewLogLineCounter() *LogLineCounter {
@@ -56,11 +60,13 @@ func (c *LogLineCounter) Add(line *LogLine) {
 func (c *LogLineCounter) Max() uint64 {
 	max := uint64(0)
 
+	c.lock.Lock()
 	for _, line := range c.counts {
 		if line.Count > max {
 			max = line.Count
 		}
 	}
+	c.lock.Unlock()
 
 	return max
 }
@@ -68,9 +74,11 @@ func (c *LogLineCounter) Max() uint64 {
 func (c *LogLineCounter) UniqueLines(sortDesc bool) []*UniqueLogLineCount {
 	lines := []*UniqueLogLineCount{}
 
+	c.lock.Lock()
 	for _, line := range c.counts {
 		lines = append(lines, line)
 	}
+	c.lock.Unlock()
 
 	var sortFunc uniqueLogLineSortFunc = sortByCountAsc
 
