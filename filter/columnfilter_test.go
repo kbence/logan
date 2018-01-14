@@ -1,6 +1,7 @@
 package filter
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/kbence/logan/types"
@@ -15,7 +16,7 @@ func newExpectation(matches bool, columns ...string) *expectation {
 	indexedColumns := types.ColumnList{}
 
 	for i, col := range columns {
-		indexedColumns[i+1] = col
+		indexedColumns[fmt.Sprint(i+1)] = col
 	}
 
 	return &expectation{Matches: matches, Line: &types.LogLine{Columns: indexedColumns}}

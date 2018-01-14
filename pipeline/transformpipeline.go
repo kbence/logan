@@ -1,6 +1,11 @@
 package pipeline
 
-import "github.com/kbence/logan/types"
+import (
+	"fmt"
+	"strconv"
+
+	"github.com/kbence/logan/types"
+)
 
 type TransformPipeline struct {
 	inputChannel   types.LogLineChannel
@@ -11,13 +16,15 @@ func NewTransformPipeline(input types.LogLineChannel, fields []*types.IntInterva
 	return &TransformPipeline{inputChannel: input, selectedFields: fields}
 }
 
-func createFieldList(intervals []*types.IntInterval, columns map[int]string) []int {
+func createFieldList(intervals []*types.IntInterval, columns map[string]string) []int {
 	fieldList := []int{}
 	maxFieldID := 1
 
-	for fieldID := range columns {
-		if maxFieldID < fieldID {
-			maxFieldID = fieldID
+	for fieldIDStr := range columns {
+		fieldID, err := strconv.ParseInt(fieldIDStr, 10, 32)
+
+		if err == nil && maxFieldID < int(fieldID) {
+			maxFieldID = int(fieldID)
 		}
 	}
 
@@ -38,10 +45,10 @@ func selectFields(output types.LogLineChannel, input types.LogLineChannel, field
 			break
 		}
 
-		newLine := &types.LogLine{Line: line.Line, Date: line.Date, Columns: map[int]string{}}
+		newLine := &types.LogLine{Line: line.Line, Date: line.Date, Columns: map[string]string{}}
 
 		for idx, f := range createFieldList(fields, line.Columns) {
-			newLine.Columns[idx] = line.Columns[f]
+			newLine.Columns[fmt.Sprint(idx)] = line.Columns[fmt.Sprint(f)]
 		}
 
 		output <- newLine

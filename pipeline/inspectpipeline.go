@@ -22,7 +22,7 @@ func (p *InspectPipeline) printInspector(line *types.LogLine, id int) {
 	fmt.Printf("Line: %s\n", line.Line)
 
 	for _, key := range line.Columns.SortedKeys() {
-		fmt.Printf("%4s: %s\n", fmt.Sprintf("%d", key+1), line.Columns[key])
+		fmt.Printf("%4s: %s\n", key, line.Columns[key])
 	}
 }
 

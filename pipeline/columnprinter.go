@@ -7,8 +7,8 @@ import (
 	"github.com/kbence/logan/types"
 )
 
-func getKeys(m types.ColumnList) []int {
-	keys := []int{}
+func getKeys(m types.ColumnList) []string {
+	keys := []string{}
 
 	for k := range m {
 		keys = append(keys, k)
@@ -21,7 +21,7 @@ func getLinesFromColumn(columns types.ColumnList) string {
 	line := ""
 	format := "%s%s"
 	keys := getKeys(columns)
-	sort.Ints(keys)
+	sort.Strings(keys)
 
 	for _, key := range keys {
 		line = fmt.Sprintf(format, line, columns[key])

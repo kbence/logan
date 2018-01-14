@@ -120,7 +120,7 @@ func (e *Expression) EvaluateString(line *types.LogLine) string {
 			break
 		}
 
-		value, found := line.Columns[int(column)]
+		value, found := line.Columns[fmt.Sprint(column)]
 		if !found {
 			value = ""
 		}

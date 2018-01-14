@@ -6,7 +6,7 @@ import (
 	"sort"
 )
 
-type ColumnList map[int]string
+type ColumnList map[string]string
 
 var crc64Table = crc64.MakeTable(crc64.ECMA)
 
@@ -37,8 +37,8 @@ func (l ColumnList) Join() string {
 	return buffer.String()
 }
 
-func (l ColumnList) Keys() []int {
-	keys := []int{}
+func (l ColumnList) Keys() []string {
+	keys := []string{}
 
 	for k := range l {
 		keys = append(keys, k)
@@ -47,8 +47,8 @@ func (l ColumnList) Keys() []int {
 	return keys
 }
 
-func (l ColumnList) SortedKeys() []int {
+func (l ColumnList) SortedKeys() []string {
 	keys := l.Keys()
-	sort.Ints(keys)
+	sort.Strings(keys)
 	return keys
 }
