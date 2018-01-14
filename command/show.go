@@ -36,7 +36,7 @@ func NewShowCommand(cfg *config.Configuration) *cobra.Command {
 	}
 
 	showCommand.Flags().StringVarP(&timeInterval, "time", "t", "-1h", "Example: -1h5m+5m")
-	showCommand.Flags().StringVarP(&fields, "flags", "f", "", "Example: 1,2,3")
+	showCommand.Flags().StringVarP(&fields, "fields", "f", "", "Example: 1,2,3")
 
 	return showCommand
 }
