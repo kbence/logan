@@ -142,7 +142,9 @@ func (p *UniquePipeline) Start() chan bool {
 				break
 			}
 
+			p.renderLock.Lock()
 			p.storeUniqueLine(line)
+			p.renderLock.Unlock()
 		}
 
 		if p.settings.TopLimit > 0 {

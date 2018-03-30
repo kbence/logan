@@ -87,7 +87,9 @@ func (p *LineChartPipeline) Start() chan bool {
 				break
 			}
 
+			p.renderLock.Lock()
 			p.sampler.Inc(line.Date, 1)
+			p.renderLock.Unlock()
 		}
 
 		if p.settings.FrequentUpdates {
